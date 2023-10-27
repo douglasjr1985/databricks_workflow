@@ -7,6 +7,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+
     steps:
       - name: Checkout do projeto corrente
         uses: actions/checkout@v3
@@ -14,24 +16,16 @@ jobs:
       - name: Configurando o python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
-          
-      - name: Pip Install
-        run: |
-          pip install databricks-sdk==0.3.0
-      
+          python-version: 3.x
 
-      - name: Deploy dos arquivos a partir do repositorio git no Workspace Databricks de HML
-        env:
-          DATALAKE_DATABRICKS_CLIENT_ID: ${{ secrets.DATALAKE_DATABRICKS_CLIENT_ID }}
-          DATALAKE_DATABRICKS_CLIENT_SECRET: ${{ secrets.DATALAKE_DATABRICKS_CLIENT_SECRET }}
-          DATALAKE_DATABRICKS_WORKSPACE_URL: ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}
-          DATALAKE_DATABRICKS_GIT_USERNAME: ${{ vars.DATALAKE_DATABRICKS_GIT_USERNAME }}
-          DATALAKE_DATABRICKS_GIT_TOKEN: ${{ secrets.DATALAKE_DATABRICKS_GIT_TOKEN }}
-          DATALAKE_DATABRICKS_REPO_USER: ${{ vars.DATALAKE_DATABRICKS_REPO_USER }}
-          DATALAKE_DATABRICKS_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
-          DATALAKE_DATABRICKS_GIT_BRANCH_REF: master
-        run: |
-          python .github/workflows/databricks_cd.py
 
-          
+      - name: Run Makefile - Find Changed Files
+        run: make find_changed_files
+        id: find_changed_files
+    
+      - name: Run Makefile - Install Dependencies
+        run: make install
+    
+      - name: Run Makefile - Run Tests
+        run: make test
+        
