@@ -40,7 +40,5 @@ jobs:
 
     # - name: Run Python script with modified file
     #   run: |
-    #     python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
-        
-#ssad        esse aqui
+ 
 
