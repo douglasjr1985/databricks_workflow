@@ -1,31 +1,35 @@
-name: Databricks CD
+name: Python CI
 
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch:
+    paths:
+      - 'toolkit/file.py'
+      - 'resources/**'  # Apenas alterações na pasta "resource" acionarão o workflow
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
-
     steps:
-      - name: Checkout do projeto corrente
-        uses: actions/checkout@v3
-      
-      - name: Configurando o python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
+    - name: Checkout code
+      uses: actions/checkout@v2
 
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
 
-      - name: Run Makefile - Find Changed Files
-        run: make find_changed_files
-        id: find_changed_files
-    
-      - name: Run Makefile - Install Dependencies
-        run: make install
-    
-      - name: Run Makefile - Run Tests
-        run: make test
-        
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Get the modified file in "resources"
+      run: |
+        arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/")
+        echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
+      id: get_arquivo_modificado
+
+    - name: Run Python script with modified file
+      run: |
+        python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
