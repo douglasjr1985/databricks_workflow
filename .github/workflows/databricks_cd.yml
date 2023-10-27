@@ -30,5 +30,5 @@ jobs:
     - name: List Modified Files
       id: git-changes
       run: |
-          git diff --name-status @{u} ${{ github.sha }} > changed-files.txt
+          git diff --name-status ${{ github.sha }} > changed-files.txt
           cat changed-files.txt
