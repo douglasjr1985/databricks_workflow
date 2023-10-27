@@ -1,9 +1,9 @@
-name: CI/CD Workflow
+name: Python CI
 
 on:
   push:
-    paths:
-      - 'resources/**'
+    branches: [ "main", "master" ]
+
 
 jobs:
   build:
@@ -18,14 +18,18 @@ jobs:
       with:
         python-version: 3.x
 
-    - name: Set JOB_PARAMETER
-      run: echo "::set-env name=JOB_PARAMETER::valor_do_parametro"
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
 
-    - name: Install Dependencies
-      run: pip install -r requirements.txt
+    - name: Get the modified file in "resources"
+      run: |
+        arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/")
+        echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
+      id: get_arquivo_modificado
 
-    - name: Run Tests
-      run: make test
-
-    - name: Run Deployment
-      run: make deploy
+    - name: Run Python script with modified file
+      run: |
+        python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
+        
+#ssad        555
