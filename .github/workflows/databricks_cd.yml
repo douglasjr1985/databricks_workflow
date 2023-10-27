@@ -25,27 +25,28 @@ jobs:
       with:
         python-version: 3.12.0
 
-    - name: Get the last commit hash
-      id: last_commit
+    - name: Install Dependencies
       run: |
-          last_commit_hash=$(/usr/bin/git log -1 --format='%H')
-          echo "::set-output name=last_commit_hash::$last_commit_hash"
-      shell: bash
+        pip install -r requirements.txt
 
-    - name: Get the list of changed files
-      id: changed_files
+    - name: List Modified Files
+      id: git-changes
       run: |
-          changed_files=$(/usr/bin/git diff --name-only ${{ steps.last_commit.outputs.last_commit_hash }})
-          echo "::set-output name=changed_files::$changed_files"
-      shell: bash
+          # Get the list of modified files
+          #git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
 
-    - name: Print changed files
+          git log -1 --format='%H'
+
+          # Display the content of changed-files.txt for verification
+          cat changed-files.txt
+
+    - name: Run Python Script with Modified Files
       run: |
-          changed_files="${{ steps.changed_files.outputs.changed_files }}"
-          IFS=$'\n' read -rd '' -a files <<< "$changed_files"
-          for file in "${files[@]}"; do
-            echo "Changed file: $file"
-            # Use $file in your GitHub Action workflow
-          done
+          # Process each file from the list
+          while IFS= read -r filename
+          do
+              python path/to/your/file.py --filename "$filename"
+          done < changed-files.txt          
+
 
 
