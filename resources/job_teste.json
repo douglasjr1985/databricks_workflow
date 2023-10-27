@@ -1,5 +1,5 @@
 {
-    "name": "job_test2",
+    "name": "job_test",
     "email_notifications": {
       "no_alert_for_skipped_runs": true
     },
