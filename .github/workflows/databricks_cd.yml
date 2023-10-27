@@ -27,18 +27,4 @@ jobs:
           cat changed-files.txt
 
 
-
-    # - name: Install dependencies
-    #   run: |
-    #     pip install -r requirements.txt
-
-    # - name: Get the modified file in "resources"
-    #   run: |
-    #     arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/")
-    #     echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
-    #   id: get_arquivo_modificado
-
-    # - name: Run Python script with modified file
-    #   run: |
  
-
