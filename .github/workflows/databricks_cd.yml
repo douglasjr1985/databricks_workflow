@@ -18,13 +18,20 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: 3.9
+        python-version: 3.x
 
-    - name: List Modified Files
-      id: git-changes
+    - name: Install dependencies
       run: |
-          git diff --name-status ${{ github.event.before }} ${{ github.sha }} > changed-files.txt
-          cat changed-files.txt
+        pip install -r requirements.txt
 
+    - name: Get the modified file in "resources"
+      run: |
+        arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/")
+        echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
+      id: get_arquivo_modificado
 
- 
+    - name: Run Python script with modified file
+      run: |
+        python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
+        
+#ssad        555
