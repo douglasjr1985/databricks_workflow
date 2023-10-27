@@ -29,3 +29,13 @@ jobs:
       run: |
           git diff --name-status ${{ github.sha }} > changed-files.txt
           cat changed-files.txt
+
+    - name: Get the modified file in "resource"
+      run: |
+          arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resource/")
+          echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
+      id: get_arquivo_modificado
+    
+    - name: Run Python script with modified file
+      run: |
+          python path/to/your/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"          
