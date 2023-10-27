@@ -10,4 +10,4 @@ deploy:
     python deploy.py
 
 find_changed_files:
-    git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resource/"
+    git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/"
