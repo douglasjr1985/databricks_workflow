@@ -5,7 +5,7 @@ on:
     branches: [ "main", "master" ]
     paths:
       - 'toolkit/file.py'
-      - 'resources/**'  # Apenas alterações na pasta "resource" acionarão o workflow
+      - 'resources/**'  # Apenas alterações na pasta "resource" acionarão o workflow..,
 
 jobs:
   build:
@@ -34,4 +34,4 @@ jobs:
       run: |
         python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
         
-#ssad        
+#ssad        555
