@@ -43,7 +43,7 @@ jobs:
             # Process each file from the list
             while IFS= read -r filename
             do
-                python3 toolkit/file.py --filename "$filename"
+                python3 toolkit/main.py --filename "$filename"
             done < changed-files.txt
  
   
