@@ -32,7 +32,10 @@ jobs:
           DATALAKE_DATABRICKS_REPO_URL: ${{ github.server_url }}/${{ github.repository }}.git
           DATALAKE_DATABRICKS_GIT_BRANCH_REF: master
         run: |
-          python .github/workflows/databricks_cd.py
+          echo "repository variable : ${{ secrets.DATALAKE_DATABRICKS_CLIENT_ID }}"
+          echo "organization variable : ${{ secrets.DATALAKE_DATABRICKS_CLIENT_SECRET }}"
+          echo "overridden variable : ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}"
+          echo "variable from shell environment : $env_var"
 
 
 
