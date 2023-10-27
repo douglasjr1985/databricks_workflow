@@ -33,3 +33,5 @@ jobs:
           DATALAKE_DATABRICKS_GIT_BRANCH_REF: master
         run: |
           python .github/workflows/databricks_cd.py
+
+          
