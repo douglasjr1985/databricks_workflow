@@ -60,6 +60,3 @@
   }
 
 
-  git diff --name-status 16ad3ae2985d0eb8f216771fad307ab0bcf28272 | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
-
-  16ad3ae2985d0eb8f216771fad307ab0bcf28272
