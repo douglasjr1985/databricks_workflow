@@ -13,7 +13,8 @@ jobs:
       - name: Get the list of changed files
         id: changed_files
         run: |
-          echo "::set-output name=changed_files::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})"
+          changed_files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+          echo "$changed_files"
         shell: bash
 
       - name: Print changed files
