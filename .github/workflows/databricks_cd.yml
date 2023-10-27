@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
     - name: Checkout code
@@ -35,10 +35,7 @@ jobs:
           # Get the list of modified files
           #git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
 
-          #git diff --name-status  > changed-files.txt
-
-          git diff --name-status feat-nova
-
+          git diff --name-status  > changed-files.txt
 
           # Display the content of changed-files.txt for verification
           cat changed-files.txt
