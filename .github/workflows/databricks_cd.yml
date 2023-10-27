@@ -33,7 +33,10 @@ jobs:
       id: git-changes
       run: |
           # Get the list of modified files
-          git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
+          #git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
+
+          git diff --name-status  > changed-files.txt
+
 
           # Display the content of changed-files.txt for verification
           cat changed-files.txt
