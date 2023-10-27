@@ -16,7 +16,7 @@
         "task_key": "teste1",
         "run_if": "ALL_SUCCESS",
         "notebook_task": {
-          "notebook_path": "/Users/douglas.dos.ext@dock.tech/notebook/testes",
+          "notebook_path": "/Users/douglas.5dos.ext@dock.tech/notebook/testes",
           "source": "WORKSPACEe"
         },
         "job_cluster_key": "Job_cluster",

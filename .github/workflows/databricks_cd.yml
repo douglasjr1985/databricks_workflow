@@ -36,6 +36,7 @@ jobs:
           #git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
 
           git diff --name-status  > changed-files.txt
+          git rev-parse --abbrev-ref HEAD
 
 
           # Display the content of changed-files.txt for verification
