@@ -14,8 +14,9 @@ jobs:
       - name: Configurando o python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.9
+          python-version: 3.x
 
+          
       - name: Run Makefile - Find Changed Files
         run: make find_changed_files
         id: find_changed_files
