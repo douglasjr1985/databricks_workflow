@@ -1,11 +1,14 @@
+# Documentation:
+# This workflow is triggered on push to the "main" or "master" branches and when there are changes in the "resources" folder.
 name: Python CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches:
+      - main
+      - master
     paths:
-      - 'resources/**'  # Apenas alterações na pasta "resource" acionarão o workflow..,
-
+      - 'resources/**'  # Only changes in the "resources" folder will trigger the workflow.
 
 jobs:
   build:
@@ -20,22 +23,23 @@ jobs:
       with:
         python-version: 3.x
 
-    - name: Install dependencies
+    - name: Install Dependencies
       run: |
         pip install -r requirements.txt
 
     - name: List Modified Files
       id: git-changes
       run: |
-          git diff --name-status 57fcb14fa7ba85c9a608a437c37c0a8b73830267 | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
+          # Get the list of modified files
+          git diff --name-status ${{ github.sha }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//' > changed-files.txt
+
+          # Display the content of changed-files.txt for verification
           cat changed-files.txt
 
-    - name: Get the modified file in "resource"
+    - name: Run Python Script with Modified Files
       run: |
-          arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resource/")
-          echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
-      id: get_arquivo_modificado
-    
-    - name: Run Python script with modified file
-      run: |
-          python path/to/your/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"          
+          # Process each file from the list
+          while IFS= read -r filename
+          do
+              python path/to/your/file.py --filename "$filename"
+          done < changed-files.txt          
