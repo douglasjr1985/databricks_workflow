@@ -20,7 +20,13 @@ jobs:
         run: |
           pip install -r requirements.txt
       
-
+      - name: Get the modified file in "resource"
+        run: |
+            arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resource/")
+            echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
+        id: get_arquivo_modificado
+    
+    
       - name: Deploy dos arquivos a partir do repositorio git no Workspace Databricks de HML
         env:
           DATALAKE_DATABRICKS_CLIENT_ID: ${{ secrets.DATALAKE_DATABRICKS_CLIENT_ID }}
