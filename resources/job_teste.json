@@ -50,7 +50,7 @@
           "enable_elastic_disk": false,
           "data_security_mode": "SINGLE_USER",
           "runtime_engine": "PHOTON",
-          "num_workers": 8
+          "num_workers": 2
         }
       }
     ],
