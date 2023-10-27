@@ -16,9 +16,9 @@ jobs:
         with:
           python-version: 3.9
           
-      - name: Pip Install
+      - name: Install dependencies
         run: |
-          pip install databricks-sdk==0.3.0
+          pip install -r requirements.txt
       
 
       - name: Deploy dos arquivos a partir do repositorio git no Workspace Databricks de HML
@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "repository variable : ${{ secrets.DATALAKE_DATABRICKS_CLIENT_ID }}"
           echo "organization variable : ${{ secrets.DATALAKE_DATABRICKS_CLIENT_SECRET }}"
-          echo "overridden variable : ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}"
+          echo "DATALAKE_DATABRICKS_WORKSPACE_URL_HML : ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}"
           echo "variable from shell environment : $env_var"
 
 
