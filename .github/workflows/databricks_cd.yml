@@ -4,8 +4,8 @@ on:
   push:
     branches: [ "main", "master" ]
     paths:
-      - 'path/to/your/file.py'
-      - 'resource/**'  # Apenas alterações na pasta "resource" acionarão o workflow
+      - 'toolkit/file.py'
+      - 'resources/**'  # Apenas alterações na pasta "resource" acionarão o workflow
 
 jobs:
   build:
@@ -24,9 +24,9 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Get the modified file in "resource"
+    - name: Get the modified file in "resources"
       run: |
-        arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resource/")
+        arquivo_modificado=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/")
         echo "::set-output name=arquivo_modificado::${arquivo_modificado}"
       id: get_arquivo_modificado
 
