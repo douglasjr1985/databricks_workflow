@@ -27,7 +27,7 @@ jobs:
           cat changed-files.txt
 
 
-          
+
     # - name: Install dependencies
     #   run: |
     #     pip install -r requirements.txt
@@ -42,4 +42,5 @@ jobs:
     #   run: |
     #     python toolkit/file.py "${{ steps.get_arquivo_modificado.outputs.arquivo_modificado }}"
         
-#ssad        555
+#ssad        esse aqui
+
