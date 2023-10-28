@@ -12,7 +12,8 @@ test:
 
 # List modified files
 list-modified-files:
-				"${github.event.head_commit.id}" 
+					echo "GitHub Head Commit ID: $(GITHUB_HEAD_COMMIT_ID)"
+					echo "GitHub Before Commit: $(GITHUB_BEFORE_COMMIT)"
 
 # Run the Python script with modified files and deploy # echo >> changed-files.txt
 deploy:
@@ -23,3 +24,5 @@ deploy:
 	
 # Default target
 all: install test list-modified-files deploy
+
+
