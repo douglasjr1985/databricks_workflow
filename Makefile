@@ -19,8 +19,8 @@ list-modified-files:
 	fi
 
 # Run the Python script with modified files and deploy
-run-python-script:
-				cat changed-files.txt 
+deploy:
+	 cat changed-files.txt 
 
 # Default target
-all: install test list-modified-files run-python-script
+all: install test list-modified-files deploy
