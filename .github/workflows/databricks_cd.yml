@@ -30,6 +30,9 @@ jobs:
       # Description: Execute project tests using the Makefile
 
     - name: List Modified Files
+      env:
+        GITHUB_HEAD_COMMIT_ID: ${{ github.event.head_commit.id }}
+        GITHUB_BEFORE_COMMIT: ${{ github.event.before }}    
       run: make list-modified-files
       # Description: List modified files in the repository using the Makefile
 
