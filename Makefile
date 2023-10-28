@@ -20,7 +20,7 @@ list-modified-files:
 	fi
 
 # Run the Python script with modified files and deploy
-deploy:
+deploy: test
 	while IFS= read -r filename; do \
 		$(PYTHON) toolkit/main.py --filename "$$filename"; \
 	done < changed-files.txt
