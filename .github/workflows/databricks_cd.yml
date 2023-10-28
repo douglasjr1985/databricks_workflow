@@ -26,9 +26,12 @@ jobs:
   
     - name: Run Makefile - Run Tests
       run: make test
-  
+
     - name: Run Makefile - Deploy
-      run: make deploy
+      run: make list-modified-files    
+
+    - name: Run Makefile - Deploy
+      run: make run-python-script
   
   
   

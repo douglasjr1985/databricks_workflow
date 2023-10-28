@@ -20,9 +20,7 @@ list-modified-files:
 
 # Run the Python script with modified files and deploy
 run-python-script:
-	cat changed-files.txt | while read -r filename; do \
-		$(PYTHON) toolkit/main.py --filename "$$filename"; \
-	done
+				cat changed-files.txt 
 
 # Default target
-all: install list-modified-files run-python-script
+all: install test list-modified-files run-python-script
