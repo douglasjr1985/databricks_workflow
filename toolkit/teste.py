@@ -1,8 +1,8 @@
-import argparse
 import logging
 import json
 from databricks_job_manager.databricks_job_manager  import DatabricksJobManager
 
+#from job_config_reader import get_job_config
 
 def get_job_config(job_name):
     try:
@@ -15,21 +15,13 @@ def get_job_config(job_name):
         logging.error(f"An unexpected error occurred: {e}")
     return None
 
-
 def main():
     # Logging configuration
     logging.basicConfig(filename='log_file.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    # Argument 'filename' configuration
-    parser = argparse.ArgumentParser(description='Process modified files.')
-    parser.add_argument('--filename', type=str, help='Name of the modified file')
-    args = parser.parse_args()
-
-    print(f'Processing file: {args.filename}') 
-
     workspace_url = "dock-tech-hml.cloud.databricks.com"
     api_token = "dapif67b502316790060ca5c6de62f0e13b2"
-    job_name = args.filename  # Replace with your job name
+    job_name = "job_teste2"  # Replace with your job name
 
     job_config = get_job_config(job_name)
 
