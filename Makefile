@@ -1,13 +1,14 @@
 # Define variables
 PYTHON := python3
 PIP := pip
+PYTEST := pytest
 
 # Install dependencies
 install:
 	$(PIP) install -r requirements.txt
 
 test:
-	$(PYTHON) -m unittest discover -s tests
+    $(PYTEST) tests
 
 # List modified files
 list-modified-files:
