@@ -13,6 +13,7 @@ def main():
         print(f'Processing file: {args.filename}')
 
         create_or_replace_job({args.filename})
+        
         # Do whatever you need with the file, for example:
         # with open(args.filename, 'r') as file:
         #     data = file.read()
