@@ -3,6 +3,10 @@ from unittest.mock import patch
 import io
 import sys
 
+
+def test_addition():
+    assert 1 + 1 == 2
+
 # def test_main_with_filename():
 #     with patch.object(sys, 'argv', ['test_script.py', '--filename', 'example.txt']):
 #         # Capture the printed output
