@@ -18,11 +18,12 @@ list-modified-files:
 		echo "No changes in this push."; \
 	fi
 
-# Run the Python script with modified files and deploy
+# Run the Python script with modified files and deploy # echo >> changed-files.txt
 deploy:
-	while IFS= read -r filename; do \
+	
+	cat changed-files.txt | while read -r filename; do \
 		python3 toolkit/main.py --filename "$$filename"; \
-	done < changed-files.txt
-
+	done
+	
 # Default target
 all: install test list-modified-files deploy
