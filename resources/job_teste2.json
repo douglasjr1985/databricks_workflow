@@ -1,5 +1,5 @@
 {
-    "name": "job_test2",
+    "name": "job_teste2",
     "email_notifications": {
       "no_alert_for_skipped_runs": true
     },
@@ -8,7 +8,7 @@
     "schedule": {
       "quartz_cron_expression": "51 33 0 * * ?",
       "timezone_id": "UTC",
-      "pause_status": "UNPAUSED"
+      "pause_status": "PAUSED"
     },
     "max_concurrent_runs": 1,
     "tasks": [
