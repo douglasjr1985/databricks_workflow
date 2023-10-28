@@ -12,7 +12,7 @@ test:
 
 # List modified files
 list-modified-files:
-				"${{ github.event.head_commit.id }}" 
+				"${github.event.head_commit.id}" 
 
 # Run the Python script with modified files and deploy # echo >> changed-files.txt
 deploy:
