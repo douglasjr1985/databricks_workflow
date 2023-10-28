@@ -7,7 +7,7 @@ install:
 	$(PIP) install -r requirements.txt
 
 test:
-    python -m unittest discover -s tests
+	python -m unittest discover -s tests
 
 # List modified files
 list-modified-files:
