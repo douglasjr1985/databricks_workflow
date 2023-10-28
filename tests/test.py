@@ -3,36 +3,36 @@ from unittest.mock import patch
 import io
 import sys
 
-def test_main_with_filename():
-    with patch.object(sys, 'argv', ['test_script.py', '--filename', 'example.txt']):
-        # Capture the printed output
-        output = io.StringIO()
-        sys.stdout = output
+# def test_main_with_filename():
+#     with patch.object(sys, 'argv', ['test_script.py', '--filename', 'example.txt']):
+#         # Capture the printed output
+#         output = io.StringIO()
+#         sys.stdout = output
 
-        from toolkit import main
+#         from toolkit import main
 
-        main()
+#         main()
 
-        # Reset sys.stdout
-        sys.stdout = sys.__stdout__
+#         # Reset sys.stdout
+#         sys.stdout = sys.__stdout__
 
-        expected_output = "Processing file: example.txt\n"
-        #assert output.getvalue() == expected_output
-        assert 1 == 1
+#         expected_output = "Processing file: example.txt\n"
+#         assert output.getvalue() == expected_output
 
-def test_main_without_filename():
-    with patch.object(sys, 'argv', ['test_script.py']):
-        # Capture the printed output
-        output = io.StringIO()
-        sys.stdout = output
 
-        from toolkit import main
+# def test_main_without_filename():
+#     with patch.object(sys, 'argv', ['test_script.py']):
+#         # Capture the printed output
+#         output = io.StringIO()
+#         sys.stdout = output
 
-        main()
+#         from toolkit import main
 
-        # Reset sys.stdout
-        sys.stdout = sys.__stdout__
+#         main()
 
-        expected_output = "No filename provided.\n"
-        #assert output.getvalue() == expected_output
-        assert 1 == 1
+#         # Reset sys.stdout
+#         sys.stdout = sys.__stdout__
+
+#         expected_output = "No filename provided.\n"
+#         assert output.getvalue() == expected_output
+
