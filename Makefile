@@ -20,9 +20,9 @@ list-modified-files:
 
 # Run the Python script with modified files and deploy
 deploy:
-	cat changed-files.txt | while read -r filename; do \
-		$(PYTHON) toolkit/main.py --filename "$$filename"; \
-	done
+	while IFS= read -r filename; do \
+		python3 toolkit/main.py --filename "$$filename"; \
+	done < changed-files.txt
 
 # Default target
 all: install test list-modified-files deploy
