@@ -14,7 +14,7 @@ test:
 list-modified-files:
 			if [ "$(GITHUB_HEAD_COMMIT_ID)" != "$(GITHUB_BEFORE_COMMIT)" ]; then \
 				git diff --name-status $(GITHUB_BEFORE_COMMIT) $(GITHUB_HEAD_COMMIT_ID) | awk -F/ '{print $$NF}' | grep '\.py$$' | sed 's/\.py$$//' > changed-files.txt \
-				echo >> changed-files.txt \
+
 			else \
 				echo "No changes in this push."; \
 			fi    
