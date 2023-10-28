@@ -28,6 +28,3 @@ deploy:
 	
 # Default target
 all: install test list-modified-files deploy
-
-
-git diff --name-status bad03388d32d97be571ca8e233f9a3850aadd10a| awk -F/ '{print $NF}' | grep '\.py$' | sed 's/\.py$//' > changed-files.txt 
