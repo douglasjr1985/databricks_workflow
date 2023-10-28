@@ -25,7 +25,7 @@ def main():
     parser.add_argument('--filename', type=str, help='Name of the modified file')
     args = parser.parse_args()
 
-    print(f'Processing file: {args.filename}') 
+    print(f'Processing job: {args.filename}') 
 
     workspace_url = "dock-tech-hml.cloud.databricks.com"
     api_token = "dapif67b502316790060ca5c6de62f0e13b2"
