@@ -13,7 +13,7 @@
     "max_concurrent_runs": 1,
     "tasks": [
       {
-        "task_key": "teste222",
+        "task_key": "teste",
         "run_if": "ALL_SUCCESS",
         "notebook_task": {
           "notebook_path": "/Users/douglas.5dos.ext@dock.tech/notebook/testes",
