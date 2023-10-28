@@ -12,8 +12,11 @@ test:
 
 # List modified files
 list-modified-files:
-					echo "GitHub Head Commit ID: $(GITHUB_HEAD_COMMIT_ID)"
-					echo "GitHub Before Commit: $(GITHUB_BEFORE_COMMIT)"
+			if [ "$(GITHUB_HEAD_COMMIT_ID)" != "$(GITHUB_BEFORE_COMMIT)" ]; then \
+				git diff --name-status $(GITHUB_BEFORE_COMMIT) $(GITHUB_HEAD_COMMIT_ID)| awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$$//' > changed-files.txt; \
+			else \
+				echo "No changes in this push."; \
+			fi    
 
 # Run the Python script with modified files and deploy # echo >> changed-files.txt
 deploy:
@@ -24,5 +27,3 @@ deploy:
 	
 # Default target
 all: install test list-modified-files deploy
-
-
