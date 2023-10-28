@@ -30,3 +30,6 @@ Before you begin, ensure you have met the following requirements:
 
    ```bash
    git clone https://github.com/your-username/databricks_workflow.git
+
+   cd databricks_workflow
+
