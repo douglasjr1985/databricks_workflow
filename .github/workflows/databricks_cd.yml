@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4  # Use checkout@v4
+    - name: Checkout Code
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Clone the repository with full history
 
@@ -21,19 +21,18 @@ jobs:
       with:
         python-version: 3.12.0
 
-    - name: Run Makefile - Install Dependencies
+    - name: Install Dependencies
       run: make install
-  
-    - name: Run Makefile - Run Tests
+      # Description: Install project dependencies by running the Makefile
+
+    - name: Run Tests
       run: make test
+      # Description: Execute project tests using the Makefile
 
-    - name: Run Makefile - Deploy
-      run: make list-modified-files    
+    - name: List Modified Files
+      run: make list-modified-files
+      # Description: List modified files in the repository using the Makefile
 
-    - name: Run Makefile - Deploy
-      run: make run-python-script
-  
-  
-  
-  
-  
+    - name: Deploy
+      run: make deploy
+      # Description: Execute the application deployment process using the Makefile
