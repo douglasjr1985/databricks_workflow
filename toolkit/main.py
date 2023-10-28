@@ -1,6 +1,6 @@
 import argparse
 
-from toolkit.settings import create_or_replace_job
+from settings import create_or_replace_job
 
 def main():
     # Argument 'filename' configuration
