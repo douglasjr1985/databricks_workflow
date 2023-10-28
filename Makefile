@@ -14,7 +14,7 @@ test:
 list-modified-files:
 			if [ "$(GITHUB_HEAD_COMMIT_ID)" != "$(GITHUB_BEFORE_COMMIT)" ]; then \
 				git diff --name-status $(GITHUB_BEFORE_COMMIT) $(GITHUB_HEAD_COMMIT_ID) | awk -F/ '{print $$NF}' | grep '\.py$$' | sed 's/\.py$$//' > changed-files.txt \
-				echo >> changed-files.txt \
+
 			else \
 				echo "No changes in this push."; \
 			fi    
@@ -30,4 +30,4 @@ deploy:
 all: install test list-modified-files deploy
 
 
-git diff --name-status 7d4a804bd78c268d9429169af79126443b8ed121 aa5ca1a557aad0e5cc2f98caa004b168f28b68d9 | awk -F/ '{print $NF}' | grep '\.py$' | sed 's/\.py$//' > changed-files.txt 
+git diff --name-status bad03388d32d97be571ca8e233f9a3850aadd10a| awk -F/ '{print $NF}' | grep '\.py$' | sed 's/\.py$//' > changed-files.txt 
