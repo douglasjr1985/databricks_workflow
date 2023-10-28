@@ -1,4 +1,2 @@
-Makefile
-changed-files.txt
-resources/job_teste.json
+job_teste
 
