@@ -6,7 +6,7 @@
     "webhook_notifications": {},
     "timeout_seconds": 0,
     "schedule": {
-      "quartz_cron_expression": "51 33 0 * * ?",
+      "quartz_cron_expression": "51 01 01 * * ?",
       "timezone_id": "UTC",
       "pause_status": "PAUSED"
     },
