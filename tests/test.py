@@ -1,11 +1,36 @@
-import unittest
+import argparse
+from unittest.mock import patch
+import io
+import sys
 
-class TestExample(unittest.TestCase):
-    def test_addition(self):
-        self.assertEqual(1 + 1, 2)
+def test_main_with_filename():
+    with patch.object(sys, 'argv', ['test_script.py', '--filename', 'example.txt']):
+        # Capture the printed output
+        output = io.StringIO()
+        sys.stdout = output
 
-    def test_subtraction(self):
-        self.assertEqual(3 - 1, 2)
+        from toolkit import main
 
-if __name__ == '__main__':
-    unittest.main()
+        main()
+
+        # Reset sys.stdout
+        sys.stdout = sys.__stdout__
+
+        expected_output = "Processing file: example.txt\n"
+        assert output.getvalue() == expected_output
+
+def test_main_without_filename():
+    with patch.object(sys, 'argv', ['test_script.py']):
+        # Capture the printed output
+        output = io.StringIO()
+        sys.stdout = output
+
+        from toolkit import main
+
+        main()
+
+        # Reset sys.stdout
+        sys.stdout = sys.__stdout__
+
+        expected_output = "No filename provided.\n"
+        assert output.getvalue() == expected_output
