@@ -6,6 +6,9 @@ PIP := pip
 install:
 	$(PIP) install -r requirements.txt
 
+test:
+    python -m unittest discover -s tests
+
 # List modified files
 list-modified-files:
 	if [ "${{ github.event.head_commit.id }}" != "${{ github.event.before }}" ]; then \
@@ -14,15 +17,12 @@ list-modified-files:
 		echo "No changes in this push."; \
 	fi
 
-# Run the Python script with modified files
-run-python-script:
+# Deploy your application
+deploy:
+	# Add deployment commands here
 	cat changed-files.txt | while read -r filename; do \
 		$(PYTHON) toolkit/main.py --filename "$$filename"; \
 	done
 
-# Deploy your application
-deploy:
-	# Add deployment commands here
-
 # Default target
-all: install list-modified-files run-python-script deploy
+all: install test list-modified-files  deploy
