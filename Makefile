@@ -8,7 +8,7 @@ install:
 	$(PIP) install -r requirements.txt
 
 test:
-    $(PYTEST) tests
+	$(PYTEST) tests
 
 # List modified files
 list-modified-files:
