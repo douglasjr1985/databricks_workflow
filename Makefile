@@ -25,4 +25,4 @@ deploy:
 	done
 
 # Default target
-all: install test list-modified-files  deploy
+all: install test list-modified-files deploy
