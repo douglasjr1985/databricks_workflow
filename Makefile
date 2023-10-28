@@ -13,14 +13,13 @@ test:
 # List modified files
 list-modified-files:
 			if [ "$(GITHUB_HEAD_COMMIT_ID)" != "$(GITHUB_BEFORE_COMMIT)" ]; then \
-				git diff --name-status $(GITHUB_BEFORE_COMMIT) $(GITHUB_HEAD_COMMIT_ID) | awk -F/ '{print $$2}' | grep '\.json$$' > changed-files.txt; \
+				git diff --name-status $(GITHUB_BEFORE_COMMIT) $(GITHUB_HEAD_COMMIT_ID) | awk -F/ '{print $$2}' | grep '\.json$$' | sed 's/\.py$$//' > changed-files.txt; \
 			else \
 				echo "No changes in this push."; \
 			fi    
 
-# Run the Python script with modified files and deploy # echo >> changed-files.txt
+# Run the Python script with modified files and deploy 
 deploy:
-	
 	cat changed-files.txt | while read -r filename; do \
 		python3 toolkit/main.py --filename "$$filename"; \
 	done
