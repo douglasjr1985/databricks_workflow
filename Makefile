@@ -1,13 +1,28 @@
-.PHONY: install test deploy find_changed_files
+# Define variables
+PYTHON := python3
+PIP := pip
 
+# Install dependencies
 install:
-	pip install -r requirements.txt
+	$(PIP) install -r requirements.txt
 
-test:
-	python -m unittest discover -s tests
+# List modified files
+list-modified-files:
+	if [ "${{ github.event.head_commit.id }}" != "${{ github.event.before }}" ]; then \
+		git diff --name-status ${{ github.event.before }} ${{ github.event.head_commit.id }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$$//' > changed-files.txt; \
+	else \
+		echo "No changes in this push."; \
+	fi
 
+# Run the Python script with modified files
+run-python-script:
+	cat changed-files.txt | while read -r filename; do \
+		$(PYTHON) toolkit/main.py --filename "$$filename"; \
+	done
+
+# Deploy your application
 deploy:
-	python deploy.py
+	# Add deployment commands here
 
-find_changed_files:
-	git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "^resources/"
+# Default target
+all: install list-modified-files run-python-script deploy

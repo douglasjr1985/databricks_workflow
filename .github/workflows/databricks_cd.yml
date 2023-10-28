@@ -21,31 +21,14 @@ jobs:
       with:
         python-version: 3.12.0
 
-    - name: Install Dependencies
-      run: |
-        pip install -r requirements.txt
-
-    - name: List Modified Files
-      id: git-changes
-      run: |
-            # Get the list of modified files
-            if [ "${{ github.event.head_commit.id }}" != "${{ github.event.before }}" ]; then
-              git diff --name-status ${{ github.event.before }} ${{ github.event.head_commit.id }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$//'  > changed-files.txt
-            else
-              echo "No changes in this push."
-            fi
+    - name: Run Makefile - Install Dependencies
+      run: make install
   
-            # Display the content of changed-files.txt for verification
-            cat changed-files.txt
+    - name: Run Makefile - Run Tests
+      run: make test
   
-    - name: Run Python Script with Modified Files
-      run: |
-            # Process each file from the list
-            while IFS= read -r filename
-            do
-                python3 toolkit/main.py --filename "$filename"
-            done < changed-files.txt
- 
+    - name: Run Makefile - Deploy
+      run: make deploy
   
   
   
