@@ -12,11 +12,7 @@ test:
 
 # List modified files
 list-modified-files:
-	if [ "$${{ github.event.head_commit.id }}" != "$${{ github.event.before }}" ]; then \
-		git diff --name-status $${{ github.event.before }} $${{ github.event.head_commit.id }} | awk '{print $2}' | sed -e 's/.*\///' -e 's/\..*$$//' > changed-files.txt; \
-	else \
-		echo "No changes in this push."; \
-	fi
+				"${{ github.event.head_commit.id }}" 
 
 # Run the Python script with modified files and deploy # echo >> changed-files.txt
 deploy:
