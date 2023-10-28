@@ -18,12 +18,11 @@ list-modified-files:
 		echo "No changes in this push."; \
 	fi
 
-# Deploy your application
-deploy:
-	# Add deployment commands here
+# Run the Python script with modified files and deploy
+run-python-script:
 	cat changed-files.txt | while read -r filename; do \
 		$(PYTHON) toolkit/main.py --filename "$$filename"; \
 	done
 
 # Default target
-all: install test list-modified-files deploy
+all: install list-modified-files run-python-script
