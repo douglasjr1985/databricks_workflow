@@ -6,11 +6,6 @@ This repository contains a Databricks workflow management system. It allows you 
 
 - [Getting Started](#getting-started)
 - [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Scripts and Configuration](#scripts-and-configuration)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Getting Started
 
@@ -24,12 +19,6 @@ Before you begin, ensure you have met the following requirements:
 - Pytest
 - Databricks account
 
-## Installation
+in progress  
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/your-username/databricks_workflow.git
-
-   cd databricks_workflow
-
+ 
