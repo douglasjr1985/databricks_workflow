@@ -36,7 +36,7 @@ def main():
     job_config = get_job_config(job_name)
 
     if job_config:
-        job_manager = DatabricksJobManager(workspace_url, client_secret, filename)
+        job_manager = DatabricksJobManager(workspace_url, client_secret)
         job_manager.create_or_replace_job(job_name, job_config)
     else:
         logging.error('Unable to create or update the job due to previous errors.')
