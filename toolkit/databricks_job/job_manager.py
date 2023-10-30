@@ -11,7 +11,7 @@ class DatabricksJobManager:
         self.jobs_api = JobsApi(ApiClient(host=self.host, token=self.token))
         
 
-    def find_job_id(self, job_name):
+    def _find_job_id(self, job_name):
         try:
             jobs = self.jobs_api.list_jobs()
             for _, items in jobs.items():
