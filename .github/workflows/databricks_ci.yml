@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - master
+    paths:
+      - 'resources/**'  # Only changes in the "resources" folder will trigger the workflow.
+  
 
 jobs:
   build:
@@ -17,7 +20,7 @@ jobs:
         fetch-depth: 0  # Clone the repository with full history
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.12.0
 
