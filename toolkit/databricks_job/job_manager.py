@@ -24,7 +24,7 @@ class DatabricksJobManager:
         return None
 
     def create_or_replace_job(self, job_name, job_config):
-        job_id = self.find_job_id(job_name)
+        job_id = self._find_job_id(job_name)
 
         if job_id is not None:
             new_settings = job_config.get('new_settings', job_config)
