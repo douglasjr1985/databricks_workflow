@@ -1,4 +1,4 @@
-name: Python CI
+name: Databricks CI
 
 on:
   push:
@@ -37,5 +37,8 @@ jobs:
       # Description: List modified files in the repository using the Makefile
 
     - name: Deploy
+      env:
+        DATALAKE_DATABRICKS_WORKSPACE_URL: ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}
+        DATALAKE_DATABRICKS_CLIENT_SECRET: ${{ secrets.DATALAKE_DATABRICKS_CLIENT_SECRET }}        
       run: make deploy
       # Description: Execute the application deployment process using the Makefile

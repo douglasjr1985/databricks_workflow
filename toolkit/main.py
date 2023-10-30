@@ -20,24 +20,27 @@ def main():
     # Logging configuration
     logging.basicConfig(filename='log_file.log', level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-    # Argument 'filename' configuration
-    parser = argparse.ArgumentParser(description='Process modified files.')
-    parser.add_argument('--filename', type=str, help='Name of the modified file')
+    # Argument configuration
+    parser = argparse.ArgumentParser(description='Process modified Jobs.')
+    parser.add_argument('--workspace_url', type=str, help='Workspace URL')
+    parser.add_argument('--client_secret', type=str, help='Client Secret')
+    parser.add_argument('--filename', type=str, help='File Name')
     args = parser.parse_args()
 
     print(f'Processing job: {args.filename}') 
 
-    workspace_url = "dock-tech-hml.cloud.databricks.com"
-    api_token = "dapif67b502316790060ca5c6de62f0e13b2"
-    job_name = args.filename  # Replace with your job name
+    workspace_url = args.workspace_url
+    client_secret = args.client_secret
+    job_name = args.filename  
 
     job_config = get_job_config(job_name)
 
     if job_config:
-        job_manager = DatabricksJobManager(workspace_url, api_token)
+        job_manager = DatabricksJobManager(workspace_url, client_secret, filename)
         job_manager.create_or_replace_job(job_name, job_config)
     else:
         logging.error('Unable to create or update the job due to previous errors.')
+
 
 if __name__ == '__main__':
     main()
