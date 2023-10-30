@@ -10,7 +10,7 @@
       "timezone_id": "UTC",
       "pause_status": "PAUSED"
     },
-    "max_concurrent_runs": 2,
+    "max_concurrent_runs": 200,
     "tasks": [
       {
         "task_key": "teste",
