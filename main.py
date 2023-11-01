@@ -2,7 +2,7 @@ import argparse
 import logging
 import json
 
-from toolkit.databricks_job.job_manager  import DatabricksJobManager
+from toolkit.databricks_job.job_manager import DatabricksJobManager
 
 
 def _get_job_config(job_name):
