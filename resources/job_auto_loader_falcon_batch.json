@@ -1,0 +1,1178 @@
+{
+  "name": "job_auto_loader_falcon_batch",
+  "email_notifications": {
+    "on_failure": [
+      "dataengineering@docktech.opsgenie.net"
+    ],
+    "no_alert_for_skipped_runs": true
+  },
+  "webhook_notifications": {},
+  "notification_settings": {
+    "no_alert_for_skipped_runs": true,
+    "no_alert_for_canceled_runs": true
+  },
+  "timeout_seconds": 0,
+  "schedule": {
+    "quartz_cron_expression": "0 30 2,5,8,11,14,17,20,23 * * ?",
+    "timezone_id": "America/Sao_Paulo",
+    "pause_status": "UNPAUSED"
+  },
+  "max_concurrent_runs": 1,
+  "tasks": [
+    {
+      "task_key": "01_01_raw_falcon_cs_case",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case/",
+          "delta_table": "raw_falcon.cs_case",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "01_02_cleaned_falcon_cs_case",
+      "depends_on": [
+        {
+          "task_key": "01_01_raw_falcon_cs_case"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case/",
+          "delta_table": "raw_falcon.cs_case",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "06_01_raw_falcon_import_credit_auth_post",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_credit_auth_post",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_credit_auth_post/",
+          "delta_table": "raw_falcon.import_credit_auth_post",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "08_02_cleaned_falcon_import_retail_banking",
+      "depends_on": [
+        {
+          "task_key": "08_01_raw_falcon_import_retail_banking"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_retail_banking",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_retail_banking/",
+          "delta_table": "raw_falcon.import_retail_banking",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "10_01_raw_falcon_import_adt",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_adt",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_adt/",
+          "delta_table": "raw_falcon.import_adt",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "06_02_cleaned_falcon_import_credit_auth_post",
+      "depends_on": [
+        {
+          "task_key": "06_01_raw_falcon_import_credit_auth_post"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_credit_auth_post",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_credit_auth_post/",
+          "delta_table": "raw_falcon.import_credit_auth_post",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "04_01_raw_falcon_fraud_verified",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "fraud_verified",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.fraud_verified/",
+          "delta_table": "raw_falcon.fraud_verified",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "11_02_cleaned_falcon_import_scoring",
+      "depends_on": [
+        {
+          "task_key": "08_01_raw_falcon_import_retail_banking"
+        },
+        {
+          "task_key": "07_01_raw_falcon_import_debit_auth_post"
+        },
+        {
+          "task_key": "09_01_raw_falcon_import_nonmonetary"
+        },
+        {
+          "task_key": "06_01_raw_falcon_import_credit_auth_post"
+        },
+        {
+          "task_key": "11_01_raw_falcon_import_scoring"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_scoring",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_scoring/",
+          "delta_table": "raw_falcon.import_scoring",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "org_client_aux",
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/org_client_aux",
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "05_02_cleaned_falcon_secrty_user",
+      "depends_on": [
+        {
+          "task_key": "05_01_raw_falcon_secrty_user"
+        },
+        {
+          "task_key": "01_01_raw_falcon_cs_case"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "secrty_user",
+          "maxFilesPerTrigger": "100000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.secrty_user/",
+          "delta_table": "raw_falcon.secrty_user",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "03_01_raw_falcon_cs_case_action",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case_action",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case_action/",
+          "delta_table": "raw_falcon.cs_case_action",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "03_02_cleaned_falcon_cs_case_action",
+      "depends_on": [
+        {
+          "task_key": "03_01_raw_falcon_cs_case_action"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case_action",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case_action/",
+          "delta_table": "raw_falcon.cs_case_action",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "09_01_raw_falcon_import_nonmonetary",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_nonmonetary",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_nonmonetary/",
+          "delta_table": "raw_falcon.import_nonmonetary",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "11_01_raw_falcon_import_scoring",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_scoring",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_scoring/",
+          "delta_table": "raw_falcon.import_scoring",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "07_01_raw_falcon_import_debit_auth_post",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_debit_auth_post",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_debit_auth_post/",
+          "delta_table": "raw_falcon.import_debit_auth_post",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "07_02_cleaned_falcon_import_debit_auth_post",
+      "depends_on": [
+        {
+          "task_key": "07_01_raw_falcon_import_debit_auth_post"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_debit_auth_post",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_debit_auth_post/",
+          "delta_table": "raw_falcon.import_debit_auth_post",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "04_02_cleaned_falcon_fraud_verified",
+      "depends_on": [
+        {
+          "task_key": "04_01_raw_falcon_fraud_verified"
+        },
+        {
+          "task_key": "01_01_raw_falcon_cs_case"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "fraud_verified",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.fraud_verified/",
+          "delta_table": "raw_falcon.fraud_verified",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "09_02_cleaned_falcon_import_nonmonetary",
+      "depends_on": [
+        {
+          "task_key": "09_01_raw_falcon_import_nonmonetary"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_nonmonetary",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_nonmonetary/",
+          "delta_table": "raw_falcon.import_nonmonetary",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "08_01_raw_falcon_import_retail_banking",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_retail_banking",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_retail_banking/",
+          "delta_table": "raw_falcon.import_retail_banking",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "10_02_cleaned_falcon_import_adt",
+      "depends_on": [
+        {
+          "task_key": "08_01_raw_falcon_import_retail_banking"
+        },
+        {
+          "task_key": "10_01_raw_falcon_import_adt"
+        },
+        {
+          "task_key": "07_01_raw_falcon_import_debit_auth_post"
+        },
+        {
+          "task_key": "09_01_raw_falcon_import_nonmonetary"
+        },
+        {
+          "task_key": "06_01_raw_falcon_import_credit_auth_post"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "import_adt",
+          "maxFilesPerTrigger": "10000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.import_adt/",
+          "delta_table": "raw_falcon.import_adt",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "02_02_cleaned_falcon_cs_case_status",
+      "depends_on": [
+        {
+          "task_key": "02_01_raw_falcon_cs_case_status"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconCleaned",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case_status",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "delta",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case_status/",
+          "delta_table": "raw_falcon.cs_case_status",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "05_01_raw_falcon_secrty_user",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "secrty_user",
+          "maxFilesPerTrigger": "100000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.secrty_user/",
+          "delta_table": "raw_falcon.secrty_user",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    },
+    {
+      "task_key": "02_01_raw_falcon_cs_case_status",
+      "depends_on": [
+        {
+          "task_key": "org_client_aux"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "notebook_task": {
+        "notebook_path": "/prd/Falcon/AutoLoader_Schema_Inference&Evolution-prod_lib_v3",
+        "base_parameters": {
+          "fetchParallelism": "1",
+          "business": "falconRaw",
+          "is_enable_checkpoint": "True",
+          "tipo_processamento": "batch",
+          "is_enable_monitor": "False",
+          "schemaEvolutionMode": "addNewColumns",
+          "is_enable_cache": "True",
+          "tabela": "cs_case_status",
+          "maxFilesPerTrigger": "1000000",
+          "format_landing": "json",
+          "includeExistingFiles": "true",
+          "source_type": "cloudFiles",
+          "landing_path": "s3://datalake-dock-landing-falcon-prd/cdc_falcon/kfkconnect.falcon.cs_case_status/",
+          "delta_table": "raw_falcon.cs_case_status",
+          "useNotifications": "false"
+        },
+        "source": "WORKSPACE"
+      },
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "libraries": [
+        {
+          "whl": "s3://datalake-dock/config/lib/datalake_dockdata_lib3-0.0.10-py3-none-any.whl"
+        },
+        {
+          "pypi": {
+            "package": "datadog-api-client==2.12.0"
+          }
+        }
+      ],
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      }
+    }
+  ],
+  "job_clusters": [
+    {
+      "job_cluster_key": "auto_loader_issuing_streaming_cluster",
+      "new_cluster": {
+        "cluster_name": "",
+        "spark_version": "11.3.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.dataLineage.enabled": "true",
+          "spark.databricks.driver.ipykernel.commChannelEnabled": "false",
+          "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
+          "spark.databricks.io.cache.compression.enabled": "true",
+          "spark.databricks.io.cache.maxDiskUsage": "100g",
+          "spark.databricks.io.cache.maxMetaDataCache": "5g",
+          "spark.databricks.service.server.enabled": "true",
+          "spark.hadoop.fs.s3a.acl.default": "BucketOwnerFullControl",
+          "spark.network.timeout": "600s",
+          "spark.rpc.io.backLog": "256"
+        },
+        "aws_attributes": {
+          "instance_profile_arn": "arn:aws:iam::944360682019:instance-profile/DatabricksGlue"
+        },
+        "custom_tags": {
+          "Autoloader": "true",
+          "Owner": "Rafael Garcia",
+          "Pool_Driver": "auto_loader_streaming_driver_issuing__",
+          "Pool_Worker": "auto_loader_streaming_worker_issuing2",
+          "Squad": "Data Engineering"
+        },
+        "cluster_log_conf": {
+          "s3": {
+            "destination": "s3://dock-databricks-overwatch/cluster-logs/",
+            "region": "us-east-1",
+            "enable_encryption": true,
+            "canned_acl": "bucket-owner-full-control"
+          }
+        },
+        "spark_env_vars": {
+          "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "instance_pool_id": "0615-012132-tries176-pool-tyzlrqq8",
+        "driver_instance_pool_id": "1003-142819-dog31-pool-qjatk1jl",
+        "data_security_mode": "NONE",
+        "num_workers": 13
+      }
+    }
+  ],
+  "tags": {
+    "Owner": "Diogenes Sousa",
+    "Squad": "Data Engineering"
+  },
+  "run_as": {
+    "user_name": "rafael.garcia@dock.tech"
+  }
+}
