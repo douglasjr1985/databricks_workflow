@@ -1,42 +1,12 @@
-import argparse
-from unittest.mock import patch
-import io
-import sys
+import unittest.mock as mock
 
+from main import _get_job_config
 
-def test_addition():
-    assert 1 + 1 == 2
-
-# def test_main_with_filename():
-#     with patch.object(sys, 'argv', ['test_script.py', '--filename', 'example.txt']):
-#         # Capture the printed output
-#         output = io.StringIO()
-#         sys.stdout = output
-
-#         from toolkit import main
-
-#         main()
-
-#         # Reset sys.stdout
-#         sys.stdout = sys.__stdout__
-
-#         expected_output = "Processing file: example.txt\n"
-#         assert output.getvalue() == expected_output
-
-
-# def test_main_without_filename():
-#     with patch.object(sys, 'argv', ['test_script.py']):
-#         # Capture the printed output
-#         output = io.StringIO()
-#         sys.stdout = output
-
-#         from toolkit import main
-
-#         main()
-
-#         # Reset sys.stdout
-#         sys.stdout = sys.__stdout__
-
-#         expected_output = "No filename provided.\n"
-#         assert output.getvalue() == expected_output
-
+# Unit test for the get_job_config function
+def test_get_job_config():
+    # Given
+    with mock.patch('builtins.open', mock.mock_open(read_data='{"key": "value"}')):
+        # When
+        result = _get_job_config('existing_file')
+        # Then
+        assert result == {'key': 'value'}
