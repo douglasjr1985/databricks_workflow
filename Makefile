@@ -26,4 +26,4 @@ deploy: test
 	done < changed-files.txt
 
 # Default target
-all:  @echo $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD) install test list-modified-files deploy
+all:  echo $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD) install test list-modified-files deploy
