@@ -29,4 +29,4 @@ deploy: test
 	done < changed-files.txt
 
 # Default target
-all: install test list-modified-files deploy
+all: info install test list-modified-files deploy
