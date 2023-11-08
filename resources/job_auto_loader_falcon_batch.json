@@ -2,7 +2,7 @@
   "name": "job_auto_loader_falcon_batch",
   "email_notifications": {
     "on_failure": [
-      "dataengineering@docktech.opsgenie.net"
+      "dataengineeringg@docktech.opsgenie.net"
     ],
     "no_alert_for_skipped_runs": true
   },
