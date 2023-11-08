@@ -21,8 +21,9 @@ list-modified-files:
 
 # Run the Python script with modified files and deploy
 deploy: test
+    @$(info value variables Databriks_WorkSpace $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD))
 	while IFS= read -r filename; do \
-		$(PYTHON) main.py --workspace_url "$(DATALAKE_DATABRICKS_WORKSPACE_URL)" --client_secret "$(DATALAKE_DATABRICKS_CLIENT_SECRET)" --filename "$$filename"; \
+		$(PYTHON) main.py --workspace_url "$(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD)" --client_secret "$(DATALAKE_DATABRICKS_CLIENT_SECRET)" --filename "$$filename"; \
 	done < changed-files.txt
 
 # Default target
