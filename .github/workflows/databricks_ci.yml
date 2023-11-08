@@ -5,8 +5,8 @@ on:
     branches:
       - main
       - master
-  #  paths:
-  #    - 'resources/**'  # Only changes in the "resources" folder will trigger the workflow.
+    paths:
+      - 'resources/**'  # Only changes in the "resources" folder will trigger the workflow.
   
 
 jobs:
