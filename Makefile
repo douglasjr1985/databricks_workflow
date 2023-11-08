@@ -3,9 +3,6 @@ PYTHON := python3
 PIP := pip
 PYTEST := pytest
 
-info:
-	$(info Value of SOME_VARIABLE: $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD))
-
 # Install dependencies
 install:
 	$(PIP) install -r requirements.txt
@@ -29,4 +26,4 @@ deploy: test
 	done < changed-files.txt
 
 # Default target
-all: info install test list-modified-files deploy
+all:  $(info Value of SOME_VARIABLE: $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD)) install test list-modified-files deploy
