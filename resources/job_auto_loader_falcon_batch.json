@@ -15,7 +15,7 @@
   "schedule": {
     "quartz_cron_expression": "0 30 2,5,8,11,14,17,20,23 * * ?",
     "timezone_id": "America/Sao_Paulo",
-    "pause_status": "UNPAUSED"
+    "pause_status": "PAUSED"
   },
   "max_concurrent_runs": 1,
   "tasks": [
