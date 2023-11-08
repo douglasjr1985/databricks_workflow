@@ -19,7 +19,7 @@ list-modified-files:
 		echo "No changes in this push."; \
 	fi
 
-# Run the Python script with modified files and deploy
+# Run the Python script with modified files and deploy.
 deploy: test
 	while IFS= read -r filename; do \
 		$(PYTHON) main.py --workspace_url "$(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD)" --client_secret "$(DATALAKE_DATABRICKS_CLIENT_SECRET)" --filename "$$filename"; \
