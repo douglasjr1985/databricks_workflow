@@ -3,6 +3,9 @@ PYTHON := python3
 PIP := pip
 PYTEST := pytest
 
+info:
+	$(info Value of SOME_VARIABLE: $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD))
+
 # Install dependencies
 install:
 	$(PIP) install -r requirements.txt
@@ -21,7 +24,6 @@ list-modified-files:
 
 # Run the Python script with modified files and deploy
 deploy: test
-    @$(info value variables Databriks_WorkSpace $(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD))
 	while IFS= read -r filename; do \
 		$(PYTHON) main.py --workspace_url "$(DATALAKE_DATABRICKS_WORKSPACE_URL_PRD)" --client_secret "$(DATALAKE_DATABRICKS_CLIENT_SECRET)" --filename "$$filename"; \
 	done < changed-files.txt
