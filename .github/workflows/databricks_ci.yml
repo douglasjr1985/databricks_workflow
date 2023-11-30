@@ -41,7 +41,7 @@ jobs:
 
     - name: Deploy
       env:
-        DATALAKE_DATABRICKS_WORKSPACE_URL: ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_HML }}
+        DATALAKE_DATABRICKS_WORKSPACE_URL_PRD: ${{ vars.DATALAKE_DATABRICKS_WORKSPACE_URL_PRD }}
         DATALAKE_DATABRICKS_CLIENT_SECRET: ${{ secrets.DATALAKE_DATABRICKS_CLIENT_SECRET }}        
       run: make deploy
       # Description: Execute the application deployment process using the Makefile
