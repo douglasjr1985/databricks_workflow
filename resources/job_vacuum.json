@@ -38,14 +38,14 @@
           "spot_bid_price_percent": 100,
           "ebs_volume_count": 0
         },
-        "node_type_id": "i3.xlarge",
+        "node_type_id": "c6id.xlarge",
         "spark_env_vars": {
           "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
         },
         "enable_elastic_disk": false,
         "data_security_mode": "SINGLE_USER",
         "runtime_engine": "PHOTON",
-        "num_workers": 8
+        "num_workers": 1
       }
     }
   ],
