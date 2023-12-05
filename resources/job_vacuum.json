@@ -11,7 +11,7 @@
       "task_key": "job_vavuum",
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "/source/job.py",
+        "python_file": "source/job_vacuum/run_job.py",
         "source": "GIT"
       },
       "job_cluster_key": "Job_cluster",
