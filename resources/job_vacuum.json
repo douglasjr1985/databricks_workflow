@@ -31,6 +31,13 @@
       "new_cluster": {
         "cluster_name": "",
         "spark_version": "13.3.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.service.server.enabled": "true",
+          "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
+          "spark.hadoop.fs.s3a.acl.default": "BucketOwnerFullControl",
+          "spark.sql.sources.partitionOverwriteMode": "dynamic",
+          "spark.databricks.service.port": "15001"
+        },
         "aws_attributes": {
           "first_on_demand": 1,
           "availability": "SPOT_WITH_FALLBACK",
