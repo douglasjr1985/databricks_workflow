@@ -16,6 +16,6 @@ from pyspark.sql import SparkSession
 
 
 import os;
-os.getcwd()
-
+# Imprime o diretório de trabalho atual
+print("Diretório de trabalho atual:", os.getcwd())
 
