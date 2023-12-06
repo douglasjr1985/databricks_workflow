@@ -20,5 +20,6 @@ import os;
 print("Diretório de trabalho atual:", os.getcwd())
 
 arquivo_json = 'config/param.json'
-print(arquivo_json)
 
+with open(arquivo_json, 'r') as file:
+    data = json.load(file)
