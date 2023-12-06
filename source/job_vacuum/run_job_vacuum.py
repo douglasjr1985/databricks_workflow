@@ -10,6 +10,9 @@ import datetime
 
 from delta.tables import DeltaTable
 from pyspark.sql.utils import AnalysisException
+from concurrent.futures import ProcessPoolExecutor
+from delta.tables import DeltaTable
+from pyspark.sql import SparkSession
 
 # Caminho para o arquivo JSON
 arquivo_json = '/config/param.json'
@@ -19,23 +22,8 @@ arquivo_json = '/config/param.json'
 with open(arquivo_json, 'r') as file:
     data = json.load(file)
 
-
-# Função para obter o timestamp mais recente da tabela Delta
-def get_max_timestamp(database_name, table_name):
-    try:
-        delta_table = DeltaTable.forName(spark, f"{database_name}.{table_name}")
-        max_timestamp = delta_table.history().agg({"timestamp": "max"}).collect()[0][0]
-        return max_timestamp
-    except AnalysisException:
-        print("A tabela cleaned_issuing.contas_test não existe.")    
-
-
-
 # Lista para armazenar as informações das tabelas
 tables_info = []
-
-criterio_7_dias_atras = datetime.datetime.now() - datetime.timedelta(days=7)
-
 
 # Iterando sobre os bancos de dados
 for database_name in data['database_name']:
@@ -51,11 +39,33 @@ for database_name in data['database_name']:
     # Filtra as tabelas a serem puladas
     db_tables = [table for table in db_tables if table['table_name'] not in data['skip_tables']]
 
-    # Adiciona as tabelas filtradas à lista geral, verificando o timestamp
-    for table in db_tables:
-        max_timestamp = get_max_timestamp(table['database_name'], table['table_name'])
-        if max_timestamp is not None and max_timestamp > criterio_7_dias_atras:
-            tables_info.append(table)
+    # Adiciona as tabelas filtradas à lista geral
+    tables_info.extend(db_tables)
 
-# Agora, 'tables_info' contém as informações das tabelas atualizadas nos últimos 7 dias
-print(f'Quantidade de tabelas: {len(tables_info)}')        
+
+# Agora, 'tables' contém as informações das tabelas de todos os bancos de dados, exceto aquelas que são para serem puladas
+print(f'quantidade de tabelas: {len(tables_info)}')
+
+# Função para inicializar o Spark e executar o VACUUM)
+def vacuum_table(database_name, table_name, retention_hours):
+    spark = SparkSession.builder.appName("VacuumJob").getOrCreate()
+    delta_table = DeltaTable.forName(spark, f"{database_name}.{table_name}")
+    delta_table.vacuum(retention_hours)
+    #spark.stop()
+
+
+# Função para extrair informações e chamar vacuum_table
+def vacuum_wrapper(table_info):
+    database_name = table_info['database_name']
+    table_name = table_info['table_name']
+    retention_hours = 24 * 7  # Defina o período de retenção conforme necessário
+    print(f"Vacuuming {database_name}.{table_name}")
+    vacuum_table(database_name, table_name, retention_hours)
+
+# Usando ThreadPoolExecutor para executar vacuum_table em paralelo
+with ThreadPoolExecutor(max_workers=len(tables_info)) as executor:
+    futures = [executor.submit(vacuum_wrapper, table_info) for table_info in tables_info]
+
+    # Aguardar a conclusão de todas as tarefas
+    for future in futures:
+        future.result()  # Isso irá bloquear até que a tarefa correspondente seja concluída

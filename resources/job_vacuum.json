@@ -50,7 +50,8 @@
         "spark_env_vars": {
           "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
         },
-        "enable_elastic_disk": false,
+        "instance_pool_id": "0909-182431-gnome115-pool-nwnb239s",
+        "driver_instance_pool_id": "0909-175538-need114-pool-54ru5kw0",
         "data_security_mode": "SINGLE_USER",
         "runtime_engine": "STANDARD",
         "num_workers": 1
