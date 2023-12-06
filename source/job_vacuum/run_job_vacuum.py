@@ -14,8 +14,12 @@ from concurrent.futures import ProcessPoolExecutor
 from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 
+
+import os;
+os.getcwd()
+
 # Caminho para o arquivo JSON
-arquivo_json = 'source/job_vacuum/config/param.json'
+arquivo_json = '/config/param.json'
 
 
 # Lendo o arquivo JSON
