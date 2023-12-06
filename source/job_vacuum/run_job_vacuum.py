@@ -19,12 +19,12 @@ import os;
 os.getcwd()
 
 # Caminho para o arquivo JSON
-arquivo_json = '/config/param.json'
+#arquivo_json = '/config/param.json'
 
 
 # Lendo o arquivo JSON
-with open(arquivo_json, 'r') as file:
-    data = json.load(file)
+#with open(arquivo_json, 'r') as file:
+#    data = json.load(file)
 
 # Lista para armazenar as informações das tabelas
 tables_info = []
