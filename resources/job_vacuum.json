@@ -39,12 +39,7 @@
           "spark.databricks.service.port": "15001"
         },
         "aws_attributes": {
-          "first_on_demand": 1,
-          "availability": "SPOT_WITH_FALLBACK",
-          "zone_id": "us-east-1a",
-          "instance_profile_arn": "arn:aws:iam::463684499885:instance-profile/DatabricksGlueHML",
-          "spot_bid_price_percent": 100,
-          "ebs_volume_count": 0
+          "instance_profile_arn": "arn:aws:iam::463684499885:instance-profile/DatabricksGlueHML"
         },
         "spark_env_vars": {
           "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
