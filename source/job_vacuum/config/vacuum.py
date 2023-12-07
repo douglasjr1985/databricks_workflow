@@ -38,7 +38,6 @@ class VacuumJob:
                     .map(lambda row: {'database_name': row['database'], 'table_name': row['tableName']})
                     .collect()
                 )
-
                 filtered_tables = [
                     table for table in db_tables 
                     if table['table_name'] not in self.config_data['skip_tables']
@@ -47,9 +46,9 @@ class VacuumJob:
                 tables_info.extend(filtered_tables)
 
             except AnalysisException as ae:
-                print(f"Erro ao acessar o banco de dados {database_name}: {ae}")
+                logging.error(f"Error accessing database {database_name}: {ae}")
             except Exception as e:
-                print(f"Erro inesperado ao processar o banco de dados {database_name}: {e}")
+                logging.error(f"Unexpected error processing database {database_name}: {e}")
 
         return tables_info
 
