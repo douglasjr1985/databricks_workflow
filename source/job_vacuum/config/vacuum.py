@@ -7,7 +7,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
 
 class VacuumJob:
-    def __init__(self, spark_session, config_file, max_threads=10):
+    def __init__(self, spark_session, config_file, max_threads=20):
         self.spark = spark_session
         self.config_file = config_file
         self.max_threads = max_threads
@@ -54,9 +54,9 @@ class VacuumJob:
                 self.total_tables = len(tables_info)
 
             except AnalysisException as ae:
-                logging.error(f"Error accessing database {database_name}: {ae}")
+                logging.error(f"Error accessing database {database_name}: {ae}\n")
             except Exception as e:
-                logging.error(f"Unexpected error processing database {database_name}: {e}")
+                logging.error(f"Unexpected error processing database {database_name}: {e}\n")
 
         return tables_info
 
