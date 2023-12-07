@@ -4,7 +4,7 @@ from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
 
-class VacuumJob:
+class OptmizeJob:
     def __init__(self, spark_session, config_file, max_threads=10):
         self.spark = spark_session
         self.config_file = config_file
