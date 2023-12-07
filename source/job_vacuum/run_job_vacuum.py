@@ -1,30 +1,19 @@
 import json
 import time
-import subprocess
-
-import json
-import time
-import subprocess
-import datetime
 
 
 from delta.tables import DeltaTable
 from pyspark.sql.utils import AnalysisException
-from concurrent.futures import ProcessPoolExecutor
-from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
-
-
-import os;
-os.getcwd()
+from concurrent.futures import ThreadPoolExecutor
+ 
 
 # Caminho para o arquivo JSON
-arquivo_json = '/config/param.json'
+arquivo_json = 'config/param.json'
 
 
-# Lendo o arquivo JSON
 with open(arquivo_json, 'r') as file:
-    data = json.load(file)
+   data = json.load(file)
 
 # Lista para armazenar as informações das tabelas
 tables_info = []
