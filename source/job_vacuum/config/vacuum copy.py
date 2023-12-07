@@ -2,6 +2,7 @@
 import boto3
 import math
 import time
+
 from pyspark.sql import functions as F
 from pyspark.sql import DataFrame, Row
 from urllib.parse import urlparse
@@ -87,22 +88,6 @@ def convert_size(size_bytes):
     return "%s %s" % (s, size_name[i])
 
 
-inicio_time = time.time()
-table_type, table_location, table_provider = get_table_properties(database_name=database_name, table_name=table_name)
-bucket_url = S3Url(table_location)
-num_files, total_size = get_size_and_count_files(bucket_url.bucket_name, bucket_url.prefix + '/')
-size_human_readable = convert_size(total_size)
-
-
-print(f'''
-      table_type = {table_type}
-      table_location = {table_location}
-      table_provider = {table_provider}
-      num_files = {num_files}
-      total_size = {total_size}
-      size_human_readable = {size_human_readable}
-''')
-
 
 if (is_exists_prefix(bucket_url.bucket_name, bucket_url.prefix + '/checkpoint')):
     raise Exception(f'Não é possivel continuar pois o diretorio de checkpoint está no diretório de dados [{table_location}]')
@@ -130,7 +115,6 @@ df_detail_before = (
 
 
 
-spark.conf.set('spark.databricks.delta.vacuum.parallelDelete.enabled', 'true')
 
 display(delta_table.vacuum(24*7))
 
