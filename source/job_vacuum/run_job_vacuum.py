@@ -1,5 +1,6 @@
 import json
 import time
+import logging
 
 from delta.tables import DeltaTable
 from concurrent.futures import ThreadPoolExecutor
