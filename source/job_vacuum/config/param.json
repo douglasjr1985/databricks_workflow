@@ -1,7 +1,12 @@
 {
-    "database_name": ["cleaned_issuing","cleaned_banking"],
-    "skip_tables": [""]
-  }
-
-
- 
+  "database_name":[
+     "cleaned_issuing",
+     "cleaned_banking",
+     "opt_dock_dbo_dl_prd",
+     "opt_dock_dbo_dm_prd",
+     "raw_banking"
+  ],
+  "skip_tables":[
+     ""
+  ]
+}
