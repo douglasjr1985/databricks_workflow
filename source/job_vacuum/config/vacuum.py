@@ -28,17 +28,31 @@ class VacuumJob:
 
     def get_tables_info(self):
         tables_info = []
+
         for database_name in self.config_data['database_name']:
-            db_tables = (
-                self.spark
-                .sql(f"SHOW TABLES FROM {database_name}")
-                .rdd
-                .map(lambda row: {'database_name': row['database'], 'table_name': row['tableName']})
-                .collect()
-            )
-            db_tables = [table for table in db_tables if table['table_name'] not in self.config_data['skip_tables']]
-            tables_info.extend(db_tables)
+            try:
+                db_tables = (
+                    self.spark
+                    .sql(f"SHOW TABLES FROM {database_name}")
+                    .rdd
+                    .map(lambda row: {'database_name': row['database'], 'table_name': row['tableName']})
+                    .collect()
+                )
+
+                filtered_tables = [
+                    table for table in db_tables 
+                    if table['table_name'] not in self.config_data['skip_tables']
+                ]
+
+                tables_info.extend(filtered_tables)
+
+            except AnalysisException as ae:
+                print(f"Erro ao acessar o banco de dados {database_name}: {ae}")
+            except Exception as e:
+                print(f"Erro inesperado ao processar o banco de dados {database_name}: {e}")
+
         return tables_info
+
 
     def run_parallel_vacuum(self):
         tables_info = self.get_tables_info()
