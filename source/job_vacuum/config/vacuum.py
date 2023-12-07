@@ -12,6 +12,9 @@ class VacuumJob:
         self.config_file = config_file
         self.max_threads = max_threads
         self.config_data = self.load_config()
+        self.tables_processed = 0
+        self.total_tables = 0  # This will be set when you get tables info
+
 
     def load_config(self):
         with open(self.config_file, 'r') as file:
@@ -21,9 +24,11 @@ class VacuumJob:
         try:
             delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
             delta_table.vacuum(retention_hours)
-            print(f"Vacuum concluído em {database_name}.{table_name}")
+            self.tables_processed += 1
+            logging.info(f"Vacuum concluído em {database_name}.{table_name} "
+                         f"({self.tables_processed} de {self.total_tables} tabelas processadas)")
         except AnalysisException:
-            print(f"Tabela {database_name}.{table_name} não encontrada.")
+            logging.error(f"Tabela {database_name}.{table_name} não encontrada.")
 
     def vacuum_wrapper(self, table_info):
         self.vacuum_table(table_info['database_name'], table_info['table_name'])
@@ -46,6 +51,7 @@ class VacuumJob:
                 ]
 
                 tables_info.extend(filtered_tables)
+                self.total_tables = len(tables_info)
 
             except AnalysisException as ae:
                 logging.error(f"Error accessing database {database_name}: {ae}")
