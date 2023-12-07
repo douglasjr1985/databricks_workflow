@@ -9,6 +9,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
 
 from config.vacuum import VacuumJob
+from config.optmize import OptimizeJob
 
 def configure_logging():
     """Configures the logging settings."""
