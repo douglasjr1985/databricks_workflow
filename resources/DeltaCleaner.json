@@ -1,5 +1,5 @@
 {
-  "name": "job_vacuum",
+  "name": "DeltaCleaner",
   "email_notifications": {
     "no_alert_for_skipped_runs": false
   },
@@ -11,7 +11,7 @@
       "task_key": "job_vacum",
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/job_vacuum/run_job.py",
+        "python_file": "source/DeltaCleaner/run_job.py",
         "source": "GIT"
       },
       "job_cluster_key": "Job_cluster",
