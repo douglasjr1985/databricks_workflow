@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
 
-from metris.before import DeltaTableMetricsCollector
+from metrics.before import DeltaTableMetricsCollector
 from config.vacuum import VacuumJob
 from config.optmize import OptimizeJob
 
