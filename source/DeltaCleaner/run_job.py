@@ -32,6 +32,6 @@ if __name__ == "__main__":
 
     collector.collect_metrics()
     # Run optimize first
-    optimize_job.run_parallel_optimize()
+    #optimize_job.run_parallel_optimize()
     # Then run vacuum
-    vacuum_job.run_parallel_vacuum()
+    #vacuum_job.run_parallel_vacuum()
