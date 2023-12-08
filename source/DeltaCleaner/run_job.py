@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pyspark.sql import SparkSession
 from pyspark.sql.utils import AnalysisException
 
+from metris.before import DeltaTableMetricsCollector
 from config.vacuum import VacuumJob
 from config.optmize import OptimizeJob
 
@@ -23,13 +24,14 @@ if __name__ == "__main__":
     
     spark = SparkSession.builder.appName("DeltaTableMaintenance").getOrCreate()
     spark.conf.set('spark.databricks.delta.vacuum.parallelDelete.enabled', 'true')
-
+ 
     # Assuming the same config file can be used for both optimize and vacuum jobs
+    collector = DeltaTableMetricsCollector(spark, "config/param.json")
     optimize_job = OptimizeJob(spark, "config/param.json")
     vacuum_job = VacuumJob(spark, "config/param.json")
 
+    collector.collect_metrics()
     # Run optimize first
     optimize_job.run_parallel_optimize()
-
     # Then run vacuum
     vacuum_job.run_parallel_vacuum()
