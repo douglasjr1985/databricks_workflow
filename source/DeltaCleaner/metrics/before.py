@@ -33,7 +33,7 @@ class DeltaTableMetricsCollectorBefore:
     """
     Class to collect and analyze metrics from Delta tables.
     """
-    def __init__(self, spark_session, config_file, max_threads=20):
+    def __init__(self, spark_session, config_file, max_threads=60):
         self.spark = spark_session
         self.config_file = config_file
         self.max_threads = max_threads
