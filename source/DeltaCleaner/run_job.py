@@ -27,7 +27,7 @@ if __name__ == "__main__":
     spark.conf.set('spark.databricks.delta.vacuum.parallelDelete.enabled', 'true')
  
     # Assuming the same config file can be used for both optimize and vacuum jobs
-    collector = DeltaTableMetricsCollector(spark, "config/param.json")
+    collector = DeltaTableMetricsCollectorBefore(spark, "config/param.json")
     optimize_job = OptimizeJob(spark, "config/param.json")
     vacuum_job = VacuumJob(spark, "config/param.json")
 
