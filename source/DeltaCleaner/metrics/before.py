@@ -29,7 +29,7 @@ class S3Url:
         """
         return self._parsed.path.lstrip("/") + "?" + self._parsed.query if self._parsed.query else self._parsed.path.lstrip("/")
 
-class DeltaTableMetricsCollector:
+class DeltaTableMetricsCollectorBefore:
     """
     Class to collect and analyze metrics from Delta tables.
     """
