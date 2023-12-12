@@ -27,39 +27,52 @@ class S3Url:
         """
         Returns the prefix from the S3 URL.
         """
-        return self._parsed.path.lstrip("/") + "?" + self._parsed.query if self._parsed.query else self._parsed.path.lstrip("/")
+        prefix = self._parsed.path.lstrip("/")
+        return prefix + "?" + self._parsed.query if self._parsed.query else prefix
 
 class DeltaTableMetricsCollectorBefore:
     """
     Class to collect and analyze metrics from Delta tables.
     """
     def __init__(self, spark_session, config_file, max_threads=60):
+        """
+        Initializes the DeltaTableMetricsCollectorBefore with Spark session,
+        configuration file, and maximum number of threads.
+        """
         self.spark = spark_session
         self.config_file = config_file
         self.max_threads = max_threads
         self.config_data = self.load_config()
-        self.database_names = self.config_data['database_name']
-        self.skip_tables = self.config_data['skip_tables']
+        self.database_names = self.config_data.get('database_name', [])
+        self.skip_tables = self.config_data.get('skip_tables', [])
 
     def load_config(self):
         """
         Loads configuration data from a JSON file.
         """
-        with open(self.config_file, 'r') as file:
-            return json.load(file)
+        try:
+            with open(self.config_file, 'r') as file:
+                return json.load(file)
+        except Exception as e:
+            logging.error(f"Failed to load config file: {e}")
+            return {}
 
     @staticmethod
     def get_size_and_count_files(bucket_name, prefix):
         """
         Gets the size and count of files in an S3 bucket with the given prefix.
         """
-        s3 = boto3.resource("s3")
-        bucket_s3 = s3.Bucket(bucket_name)
-        num_files = total_size = 0
-        for b in bucket_s3.objects.filter(Prefix=prefix):
-            total_size += b.size
-            num_files += 1
-        return num_files, total_size
+        try:
+            s3 = boto3.resource("s3")
+            bucket_s3 = s3.Bucket(bucket_name)
+            num_files = total_size = 0
+            for obj in bucket_s3.objects.filter(Prefix=prefix):
+                total_size += obj.size
+                num_files += 1
+            return num_files, total_size
+        except Exception as e:
+            logging.error(f"Error fetching file size and count: {e}")
+            return 0, 0
 
     @staticmethod
     def convert_size(size_bytes):
@@ -74,13 +87,13 @@ class DeltaTableMetricsCollectorBefore:
    
     def database_exists(self, database_name):
         """
-        Checks if the database exists.
+        Checks if the specified database exists.
         """
         try:
             self.spark.sql(f"USE {database_name}")
             return True
         except AnalysisException:
-            logging.warning(f"The database {database_name} does not exist.")
+            logging.warning(f"Database {database_name} does not exist.")
             return False
         
     def get_tables_in_databases(self):
@@ -90,8 +103,11 @@ class DeltaTableMetricsCollectorBefore:
         all_tables = []
         for database_name in self.database_names:
             if self.database_exists(database_name):
-                tables_df = self.spark.sql(f"SHOW TABLES IN {database_name}")
-                all_tables.extend([(database_name, row.tableName) for row in tables_df.collect() if row.tableName not in self.skip_tables])
+                try:
+                    tables_df = self.spark.sql(f"SHOW TABLES IN {database_name}")
+                    all_tables.extend([(database_name, row.tableName) for row in tables_df.collect() if row.tableName not in self.skip_tables])
+                except Exception as e:
+                    logging.error(f"Error retrieving tables from database {database_name}: {e}")
         return all_tables
 
     def get_table_properties(self, database_name, table_name):
@@ -185,6 +201,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     spark = SparkSession.builder.appName("DeltaTableMetricsCollectorBefore").getOrCreate()
 
-    config_file_path = "config/param.json"  # Replace with the correct path to your JSON config file
+    config_file_path = "DeltaCleaner/config/param.json"  # Replace with the correct path to your JSON config file
     collector = DeltaTableMetricsCollectorBefore(spark, config_file_path)
     collector.collect_metrics()
