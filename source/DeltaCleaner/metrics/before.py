@@ -180,3 +180,11 @@ class DeltaTableMetricsCollectorBefore:
         except Exception as e:
             logging.error(f"Error collecting metrics for tables: {e}")
 
+
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    spark = SparkSession.builder.appName("DeltaTableMetricsCollectorBefore").getOrCreate()
+
+    config_file_path = "config/param.json"  # Replace with the correct path to your JSON config file
+    collector = DeltaTableMetricsCollectorBefore(spark, config_file_path)
+    collector.collect_metrics()
