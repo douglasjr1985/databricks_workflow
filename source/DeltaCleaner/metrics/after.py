@@ -7,28 +7,8 @@ from pyspark.sql.utils import AnalysisException
 from urllib.parse import urlparse
 from delta.tables import DeltaTable
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from pyspark.sql.types import IntegerType,LongType
 
-class S3Url:
-    """
-    Class to parse and handle S3 URLs.
-    """
-    def __init__(self, url):
-        self._parsed = urlparse(url, allow_fragments=False)
-
-    @property
-    def bucket_name(self):
-        """
-        Returns the bucket name from the S3 URL.
-        """
-        return self._parsed.netloc
-
-    @property
-    def prefix(self):
-        """
-        Returns the prefix from the S3 URL.
-        """
-        prefix = self._parsed.path.lstrip("/")
-        return prefix + "?" + self._parsed.query if self._parsed.query else prefix
 
 class DeltaTableMetricsCollectorAfter:
     """
@@ -57,22 +37,6 @@ class DeltaTableMetricsCollectorAfter:
             logging.error(f"Failed to load config file: {e}")
             return {}
 
-    @staticmethod
-    def get_size_and_count_files(bucket_name, prefix):
-        """
-        Gets the size and count of files in an S3 bucket with the given prefix.
-        """
-        try:
-            s3 = boto3.resource("s3")
-            bucket_s3 = s3.Bucket(bucket_name)
-            num_files = total_size = 0
-            for obj in bucket_s3.objects.filter(Prefix=prefix):
-                total_size += obj.size
-                num_files += 1
-            return num_files, total_size
-        except Exception as e:
-            logging.error(f"Error fetching file size and count: {e}")
-            return 0, 0
 
     @staticmethod
     def convert_size(size_bytes):
@@ -110,33 +74,33 @@ class DeltaTableMetricsCollectorAfter:
                     logging.error(f"Error retrieving tables from database {database_name}: {e}")
         return all_tables
 
+
     def get_table_properties(self, database_name, table_name):
         """
         Returns the properties of a table.
         """
         try:
-            table_properties = (
-                self.spark.sql(f"DESC EXTENDED {database_name}.{table_name}")
-                .filter(F.col("col_name").isin("Type", "Location", "Provider"))
-                .withColumn("database", F.lit(database_name))
-                .withColumn("table", F.lit(table_name))
-                .groupBy("database", "table")
-                .pivot("col_name")
-                .agg(F.first("data_type"))
-                .select("database", "table", "Type", "Location", "Provider")
-                .rdd.map(lambda row: (row["Type"], row["Location"], row["Provider"]))
-                .collect()
+            # Executar consulta SQL para obter propriedades estendidas da tabela
+            desc_query = f"DESC EXTENDED {database_name}.{table_name}"
+            result_df = self.spark.sql(desc_query)
+
+            # Filtrar o DataFrame para as propriedades necessárias
+            filtered_df = result_df.filter(
+                F.col("col_name").isin("Type", "Location", "Provider")
             )
-            if table_properties:
-                return table_properties.pop()
-            else:
-                logging.error(f"No properties found for table {table_name} in database {database_name}")
-                return None, None, None
+
+            # Coletar os resultados em um dicionário
+            properties = {row.col_name: row.data_type for row in filtered_df.collect()}
+
+            # Retornar as propriedades necessárias
+            return properties.get('Type'), properties.get('Location'), properties.get('Provider')
         except Exception as e:
             logging.error(f"Error retrieving properties for table {table_name} in database {database_name}: {e}")
             return None, None, None
 
-    def table_detail_after(self, database_name, table_name, num_files, total_size, size_human_readable):
+
+
+    def table_detail_after(self, database_name, table_name):
         """
         Prepares table details after processing.
         """
@@ -146,33 +110,33 @@ class DeltaTableMetricsCollectorAfter:
             return df_detail.withColumn('data_execution', F.current_timestamp()) \
                             .withColumn('database', F.lit(database_name)) \
                             .withColumn('table', F.lit(table_name)) \
-                            .withColumn('num_files_after', F.lit(num_files)) \
-                            .withColumn('total_size_after', F.lit(total_size).cast('long')) \
-                            .withColumn('size_human_readable_after', F.lit(size_human_readable))
+                            .withColumn('num_files_after', df_detail['numFiles'].cast(IntegerType())) \
+                            .withColumn('total_size_after',df_detail['sizeInBytes'].cast(LongType()))
+                            
         except Exception as e:
             logging.error(f"Error preparing details for table {table_name} in database {database_name}: {e}")
             return None
 
     def save_table(self, df_detail_after):
-        """
-        Saves the table details.    
-        """
-        delta_table = DeltaTable.forName(spark, 'app_observability.vacuum_metrics')
-        merge_condition = "delta_table.id = df_detail_after.id and  delta_table.createdAt = df_detail_after.createdAt "
+            """
+            Saves the table details.    
+            """
+            delta_table = DeltaTable.forName(spark, 'app_observability.vacuum_metrics')
+            merge_condition = "delta_table.id = df_detail_after.id and  delta_table.createdAt = df_detail_after.createdAt "
 
-        if df_detail_after:
-            try:
-                # Executa a operação de mesclagem
-                (
-                    delta_table.alias('delta_table')
-                    .merge(df_detail_after.alias('df_detail_after'), merge_condition)
-                    .whenMatchedUpdateAll()  # Atualiza as linhas correspondentes
-                    .whenNotMatchedInsertAll()  # Insere linhas não correspondentes
-                    .execute()
-                )
+            if df_detail_after:
+                try:
+                    # Executa a operação de mesclagem
+                    (
+                        delta_table.alias('delta_table')
+                        .merge(df_detail_after.alias('df_detail_after'), merge_condition)
+                        .whenMatchedUpdateAll()  # Atualiza as linhas correspondentes
+                        .whenNotMatchedInsertAll()  # Insere linhas não correspondentes
+                        .execute()
+                    )
 
-            except Exception as e:
-                logging.error(f"Error saving table details: {e}")
+                except Exception as e:
+                    logging.error(f"Error saving table details: {e}")
 
     def collect_metrics_for_table(self, database_name, table_name):
         """
@@ -180,12 +144,9 @@ class DeltaTableMetricsCollectorAfter:
         """
         try:
             table_type, table_location, table_provider = self.get_table_properties(database_name, table_name)
+            
             if table_type and table_location and table_provider:
-                bucket_url = S3Url(table_location)
-                num_files_after, total_size_after = self.get_size_and_count_files(bucket_url.bucket_name, bucket_url.prefix)
-                ## size_human_readable_after = self.convert_size(total_size_after)
-                size_human_readable_after = '0'    
-                df_detail_after = self.table_detail_after(database_name, table_name, num_files_after, total_size_after, size_human_readable_after)
+                df_detail_after = self.table_detail_after(database_name, table_name)
                 self.save_table(df_detail_after)
         except Exception as e:
             logging.error(f"Error collecting metrics for table {table_name} in database {database_name}: {e}")
@@ -206,12 +167,12 @@ class DeltaTableMetricsCollectorAfter:
                         logging.error(f"Error collecting metrics for table {tbl} in database {db}: {e}")
         except Exception as e:
             logging.error(f"Error collecting metrics for tables: {e}")
-
+            
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     spark = SparkSession.builder.appName("DeltaTableMetricsCollectorAfter").getOrCreate()
 
-    config_file_path = "../config/param.json"  # Replace with the correct path to your JSON config file
-    collector = DeltaTableMetricsCollectorAfter(spark, config_file_path)
+    config_file_path = "../config/param.json"  
+    collector = DeltaTableMetricsCollectorafter(spark, config_file_path)
     collector.collect_metrics()
