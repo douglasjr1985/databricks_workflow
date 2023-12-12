@@ -172,8 +172,8 @@ class DeltaTableMetricsCollectorBefore:
             if table_type and table_location and table_provider:
                 bucket_url = S3Url(table_location)
                 num_files_before, total_size_before = self.get_size_and_count_files(bucket_url.bucket_name, bucket_url.prefix)
-                size_human_readable_before = self.convert_size(total_size_before)
-
+                #size_human_readable_before = self.convert_size(total_size_before)
+                size_human_readable_before = 0    
                 df_detail_before = self.table_detail_before(database_name, table_name, num_files_before, total_size_before, size_human_readable_before)
                 self.save_table(df_detail_before)
         except Exception as e:
