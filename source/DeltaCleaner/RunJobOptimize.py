@@ -26,13 +26,7 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("DeltaTableMaintenance").getOrCreate()
     spark.conf.set('spark.databricks.delta.vacuum.parallelDelete.enabled', 'true')
  
-    # Assuming the same config file can be used for both optimize and vacuum jobs
-    collector = DeltaTableMetricsCollectorBefore(spark, "config/param.json")
     optimize_job = OptimizeJob(spark, "config/param.json")
-    vacuum_job = VacuumJob(spark, "config/param.json")
 
-    collector.collect_metrics()
     # Run optimize first
     optimize_job.run_parallel_optimize()
-    # Then run vacuum
-    vacuum_job.run_parallel_vacuum()
