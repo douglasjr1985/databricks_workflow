@@ -8,13 +8,79 @@
   "max_concurrent_runs": 1,
   "tasks": [
     {
-      "task_key": "job_vacum",
+      "task_key": "MetricsBefore",
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/DeltaCleaner/run_job.py",
+        "python_file": "source/DeltaCleaner/metrics/before.py",
         "source": "GIT"
       },
-      "job_cluster_key": "Job_cluster",
+      "job_cluster_key": "MetricsBefore_cluster",
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "RunJobOptimize",
+      "depends_on": [
+        {
+          "task_key": "MetricsBefore"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "spark_python_task": {
+        "python_file": "source/DeltaCleaner/RunJobOptimize.py",
+        "source": "GIT"
+      },
+      "job_cluster_key": "RunJobOptimize_cluster",
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "RunJobVacuum",
+      "depends_on": [
+        {
+          "task_key": "RunJobOptimize"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "spark_python_task": {
+        "python_file": "source/DeltaCleaner/RunJobVacuum.py",
+        "source": "GIT"
+      },
+      "job_cluster_key": "DeltaCleaner_vacuum",
+      "timeout_seconds": 0,
+      "email_notifications": {},
+      "notification_settings": {
+        "no_alert_for_skipped_runs": false,
+        "no_alert_for_canceled_runs": false,
+        "alert_on_last_attempt": false
+      },
+      "webhook_notifications": {}
+    },
+    {
+      "task_key": "MetricsAfter",
+      "depends_on": [
+        {
+          "task_key": "RunJobVacuum"
+        }
+      ],
+      "run_if": "ALL_SUCCESS",
+      "spark_python_task": {
+        "python_file": "source/DeltaCleaner/metrics/after.py",
+        "source": "GIT"
+      },
+      "job_cluster_key": "MetricsAfter_cluster",
       "timeout_seconds": 0,
       "email_notifications": {},
       "notification_settings": {
@@ -27,28 +93,100 @@
   ],
   "job_clusters": [
     {
-      "job_cluster_key": "Job_cluster",
+      "job_cluster_key": "DeltaCleaner_vacuum",
+      "new_cluster": {
+        "cluster_name": "",
+        "spark_version": "13.2.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
+          "spark.driver.maxResultSize": "10g"
+        },
+        "aws_attributes": {
+          "instance_profile_arn": "arn:aws:iam::944360682019:instance-profile/DatabricksGlue"
+        },
+        "cluster_log_conf": {
+          "s3": {
+            "destination": "s3://dock-databricks-overwatch/cluster-logs/",
+            "region": "us-east-1",
+            "enable_encryption": true,
+            "canned_acl": "bucket-owner-full-control"
+          }
+        },
+        "instance_pool_id": "0911-032043-muggy53-pool-7n8supe8",
+        "data_security_mode": "SINGLE_USER",
+        "runtime_engine": "STANDARD",
+        "autoscale": {
+          "min_workers": 1,
+          "max_workers": 2
+        }
+      }
+    },
+    {
+      "job_cluster_key": "RunJobOptimize_cluster",
       "new_cluster": {
         "cluster_name": "",
         "spark_version": "13.3.x-scala2.12",
         "spark_conf": {
-          "spark.databricks.service.server.enabled": "true",
           "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
-          "spark.hadoop.fs.s3a.acl.default": "BucketOwnerFullControl",
-          "spark.sql.sources.partitionOverwriteMode": "dynamic",
-          "spark.databricks.service.port": "15001"
+          "spark.driver.maxResultSize": "10g"
         },
         "aws_attributes": {
-          "instance_profile_arn": "arn:aws:iam::463684499885:instance-profile/DatabricksGlueHML"
+          "instance_profile_arn": "arn:aws:iam::944360682019:instance-profile/DatabricksGlue"
         },
         "spark_env_vars": {
           "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
         },
-        "instance_pool_id": "0909-182431-gnome115-pool-nwnb239s",
-        "driver_instance_pool_id": "0909-175538-need114-pool-54ru5kw0",
+        "instance_pool_id": "0911-032043-muggy53-pool-7n8supe8",
         "data_security_mode": "SINGLE_USER",
         "runtime_engine": "STANDARD",
         "num_workers": 1
+      }
+    },
+    {
+      "job_cluster_key": "MetricsBefore_cluster",
+      "new_cluster": {
+        "cluster_name": "",
+        "spark_version": "13.3.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
+          "spark.driver.maxResultSize": "10g"
+        },
+        "aws_attributes": {
+          "instance_profile_arn": "arn:aws:iam::944360682019:instance-profile/DatabricksGlue"
+        },
+        "spark_env_vars": {
+          "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "instance_pool_id": "0911-032043-muggy53-pool-7n8supe8",
+        "data_security_mode": "SINGLE_USER",
+        "runtime_engine": "STANDARD",
+        "autoscale": {
+          "min_workers": 1,
+          "max_workers": 2
+        }
+      }
+    },
+    {
+      "job_cluster_key": "MetricsAfter_cluster",
+      "new_cluster": {
+        "spark_version": "13.3.x-scala2.12",
+        "spark_conf": {
+          "spark.databricks.hive.metastore.glueCatalog.enabled": "true",
+          "spark.driver.maxResultSize": "10g"
+        },
+        "aws_attributes": {
+          "instance_profile_arn": "arn:aws:iam::944360682019:instance-profile/DatabricksGlue"
+        },
+        "spark_env_vars": {
+          "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+        },
+        "instance_pool_id": "0911-032043-muggy53-pool-7n8supe8",
+        "data_security_mode": "SINGLE_USER",
+        "runtime_engine": "STANDARD",
+        "autoscale": {
+          "min_workers": 1,
+          "max_workers": 2
+        }
       }
     }
   ],
