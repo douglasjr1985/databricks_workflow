@@ -64,7 +64,7 @@ class OptimizeJob:
             try:
                 db_tables = (
                     self.spark
-                    .sql(f"SHOW TABLES FROM {database_name}")
+                    .sql(f"select database, table  from app_observability.vacuum_metrics where date(data_execution) >= date(current_date()-1) and database = '{database_name}'")
                     .rdd
                     .map(lambda row: {'database_name': row['database'], 'table_name': row['tableName']})
                     .collect()
