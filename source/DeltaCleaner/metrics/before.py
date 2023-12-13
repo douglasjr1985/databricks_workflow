@@ -75,7 +75,7 @@ class DeltaTableMetricsCollectorBefore:
         return all_tables
 
 
-    def get_recently_modified_table_properties(database_name, table_name):
+    def get_recently_modified_table_properties(self, database_name, table_name):
         """
         Returns the properties of a table if it was modified today.
         """
@@ -85,7 +85,7 @@ class DeltaTableMetricsCollectorBefore:
 
             # Obtendo a última data de modificação da tabela
             history_query = f"DESCRIBE HISTORY {database_name}.{table_name}"
-            history_df = spark.sql(history_query)
+            history_df = self.spark.sql(history_query)
             last_modified_row = history_df.orderBy(F.desc("timestamp")).first()
 
             if last_modified_row:
@@ -93,9 +93,8 @@ class DeltaTableMetricsCollectorBefore:
                 # Verificar se a última modificação foi hoje
                 if last_modified_date == current_date:
                     # Obtendo propriedades da tabela
-                    print('entrou')
                     desc_query = f"DESC EXTENDED {database_name}.{table_name}"
-                    result_df = spark.sql(desc_query)
+                    result_df = self.spark.sql(desc_query)
                     properties = {row.col_name: row.data_type for row in result_df.collect() if row.col_name in ["Type", "Location", "Provider"]}
 
                     return properties.get('Type'), properties.get('Location'), properties.get('Provider'), last_modified_row.timestamp
