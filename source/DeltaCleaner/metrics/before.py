@@ -1,13 +1,15 @@
+import boto3
 import math
 import logging
 import json
 
 from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.utils import AnalysisException
+from urllib.parse import urlparse
 from delta.tables import DeltaTable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pyspark.sql.types import IntegerType,LongType
-from datetime import datetime, timedelta
+from datetime import datetime
 
 
 class DeltaTableMetricsCollectorBefore:
@@ -48,7 +50,7 @@ class DeltaTableMetricsCollectorBefore:
         size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
         i = int(math.floor(math.log(size_bytes, 1024)))
         return f"{round(size_bytes / math.pow(1024, i), 2)} {size_name[i]}"
-   
+
     def database_exists(self, database_name):
         """
         Checks if the specified database exists.
@@ -60,50 +62,55 @@ class DeltaTableMetricsCollectorBefore:
             logging.warning(f"Database {database_name} does not exist.")
             return False
         
-    def get_tables_in_databases(self):
+    def get_tables_modified_today(self):
         """
-        Returns a list of (database name, table name) pairs for all specified databases.
+        Returns a list of (database name, table name) pairs for tables modified today.
         """
-        all_tables = []
+        modified_tables = []
+        current_date = datetime.now().date()
+        
         for database_name in self.database_names:
             if self.database_exists(database_name):
                 try:
                     tables_df = self.spark.sql(f"SHOW TABLES IN {database_name}")
-                    all_tables.extend([(database_name, row.tableName) for row in tables_df.collect() if row.tableName not in self.skip_tables])
+                    for row in tables_df.collect():
+                        table_name = row.tableName
+                        if table_name not in self.skip_tables:
+                            # Verificar a última data de modificação da tabela
+                            history_query = f"DESCRIBE HISTORY {database_name}.{table_name}"
+                            history_df = self.spark.sql(history_query)
+                            last_modified_row = history_df.orderBy(F.desc("timestamp")).first()
+
+                            if last_modified_row and last_modified_row.timestamp.date() == current_date:
+                                modified_tables.append((database_name, table_name))
+
                 except Exception as e:
-                    logging.error(f"Error retrieving tables from database {database_name}: {e}")
-        return all_tables
+                    logging.error(f"Error checking modification date for tables in database {database_name}: {e}")
 
-
-    def get_recently_modified_table_properties(self, database_name, table_name):
+        return modified_tables
+        
+    def get_table_properties(self, database_name, table_name):
         """
-        Returns the properties of a table if it was modified today.
+        Returns the properties of a table.
         """
         try:
-            # Obtendo a data atual
-            current_date = datetime.now().date()
+            # Executar consulta SQL para obter propriedades estendidas da tabela
+            desc_query = f"DESC EXTENDED {database_name}.{table_name}"
+            result_df = self.spark.sql(desc_query)
 
-            # Obtendo a última data de modificação da tabela
-            history_query = f"DESCRIBE HISTORY {database_name}.{table_name}"
-            history_df = self.spark.sql(history_query)
-            last_modified_row = history_df.orderBy(F.desc("timestamp")).first()
+            # Filtrar o DataFrame para as propriedades necessárias
+            filtered_df = result_df.filter(
+                F.col("col_name").isin("Type", "Location", "Provider")
+            )
 
-            if last_modified_row:
-                last_modified_date = last_modified_row.timestamp.date()
-                # Verificar se a última modificação foi hoje
-                if last_modified_date == current_date:
-                    # Obtendo propriedades da tabela
-                    desc_query = f"DESC EXTENDED {database_name}.{table_name}"
-                    result_df = self.spark.sql(desc_query)
-                    properties = {row.col_name: row.data_type for row in result_df.collect() if row.col_name in ["Type", "Location", "Provider"]}
+            # Coletar os resultados em um dicionário
+            properties = {row.col_name: row.data_type for row in filtered_df.collect()}
 
-                    return properties.get('Type'), properties.get('Location'), properties.get('Provider'), last_modified_row.timestamp
-
-            return None, None, None, None
-
+            # Retornar as propriedades necessárias
+            return properties.get('Type'), properties.get('Location'), properties.get('Provider')
         except Exception as e:
             logging.error(f"Error retrieving properties for table {table_name} in database {database_name}: {e}")
-            return None, None, None, None
+            return None, None, None
 
 
 
@@ -139,7 +146,7 @@ class DeltaTableMetricsCollectorBefore:
         Collects and saves metrics for a specific table.
         """
         try:
-            table_type, table_location, table_provider = self.get_recently_modified_table_properties(database_name, table_name)
+            table_type, table_location, table_provider = self.get_table_properties(database_name, table_name)
             
             if table_type and table_location and table_provider:
                 df_detail_before = self.table_detail_before(database_name, table_name)
@@ -153,7 +160,7 @@ class DeltaTableMetricsCollectorBefore:
         """
         try:
             with ThreadPoolExecutor(max_workers=self.max_threads) as executor:
-                tables = self.get_tables_in_databases()
+                tables = self.get_tables_modified_today()
                 futures = {executor.submit(self.collect_metrics_for_table, db, tbl): (db, tbl) for db, tbl in tables}
                 for future in as_completed(futures):
                     db, tbl = futures[future]
