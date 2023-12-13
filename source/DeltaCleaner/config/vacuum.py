@@ -64,12 +64,12 @@ class VacuumJob:
         for database_name in self.config_data['database_name']:
             try:
                 db_tables = (
-                    self.spark
-                    .sql(f"SHOW TABLES FROM {database_name}")
-                    .rdd
-                    .map(lambda row: {'database_name': row['database'], 'table_name': row['tableName']})
-                    .collect()
-                )
+                                spark
+                                .sql(f"select database as database_name , table as table_name from app_observability.vacuum_metrics where date(data_execution) >= date(current_date()-1) and database = '{database_name}'")
+                                .rdd
+                                .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
+                                .collect()
+                            )
                 filtered_tables = [table for table in db_tables 
                                    if table['table_name'] not in self.config_data['skip_tables']]
 
