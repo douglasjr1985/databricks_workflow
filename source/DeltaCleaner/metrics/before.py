@@ -1,13 +1,13 @@
-import boto3
 import math
 import logging
 import json
+
 from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.utils import AnalysisException
-from urllib.parse import urlparse
 from delta.tables import DeltaTable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pyspark.sql.types import IntegerType,LongType
+from datetime import datetime, timedelta
 
 
 class DeltaTableMetricsCollectorBefore:
@@ -75,28 +75,36 @@ class DeltaTableMetricsCollectorBefore:
         return all_tables
 
 
-    def get_table_properties(self, database_name, table_name):
+    def get_recently_modified_table_properties(database_name, table_name):
         """
-        Returns the properties of a table.
+        Returns the properties of a table if it was modified today.
         """
         try:
-            # Executar consulta SQL para obter propriedades estendidas da tabela
-            desc_query = f"DESC EXTENDED {database_name}.{table_name}"
-            result_df = self.spark.sql(desc_query)
+            # Obtendo a data atual
+            current_date = datetime.now().date()
 
-            # Filtrar o DataFrame para as propriedades necessárias
-            filtered_df = result_df.filter(
-                F.col("col_name").isin("Type", "Location", "Provider")
-            )
+            # Obtendo a última data de modificação da tabela
+            history_query = f"DESCRIBE HISTORY {database_name}.{table_name}"
+            history_df = spark.sql(history_query)
+            last_modified_row = history_df.orderBy(F.desc("timestamp")).first()
 
-            # Coletar os resultados em um dicionário
-            properties = {row.col_name: row.data_type for row in filtered_df.collect()}
+            if last_modified_row:
+                last_modified_date = last_modified_row.timestamp.date()
+                # Verificar se a última modificação foi hoje
+                if last_modified_date == current_date:
+                    # Obtendo propriedades da tabela
+                    print('entrou')
+                    desc_query = f"DESC EXTENDED {database_name}.{table_name}"
+                    result_df = spark.sql(desc_query)
+                    properties = {row.col_name: row.data_type for row in result_df.collect() if row.col_name in ["Type", "Location", "Provider"]}
 
-            # Retornar as propriedades necessárias
-            return properties.get('Type'), properties.get('Location'), properties.get('Provider')
+                    return properties.get('Type'), properties.get('Location'), properties.get('Provider'), last_modified_row.timestamp
+
+            return None, None, None, None
+
         except Exception as e:
             logging.error(f"Error retrieving properties for table {table_name} in database {database_name}: {e}")
-            return None, None, None
+            return None, None, None, None
 
 
 
@@ -132,7 +140,7 @@ class DeltaTableMetricsCollectorBefore:
         Collects and saves metrics for a specific table.
         """
         try:
-            table_type, table_location, table_provider = self.get_table_properties(database_name, table_name)
+            table_type, table_location, table_provider = self.get_recently_modified_table_properties(database_name, table_name)
             
             if table_type and table_location and table_provider:
                 df_detail_before = self.table_detail_before(database_name, table_name)
