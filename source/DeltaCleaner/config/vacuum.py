@@ -1,5 +1,6 @@
 import json
 import logging
+
 from concurrent.futures import ThreadPoolExecutor
 from delta.tables import DeltaTable
 from pyspark.sql.utils import AnalysisException
