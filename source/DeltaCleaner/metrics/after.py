@@ -174,5 +174,5 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("DeltaTableMetricsCollectorAfter").getOrCreate()
 
     config_file_path = "../config/param.json"  
-    collector = DeltaTableMetricsCollectorafter(spark, config_file_path)
+    collector = DeltaTableMetricsCollectorAfter(spark, config_file_path)
     collector.collect_metrics()
