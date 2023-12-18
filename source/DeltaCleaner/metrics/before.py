@@ -16,7 +16,7 @@ class DeltaTableMetricsCollectorBefore:
     """
     Class to collect and analyze metrics from Delta tables.
     """
-    def __init__(self, spark_session, config_file, max_threads=60):
+    def __init__(self, spark_session, config_file, max_threads=20):
         """
         Initializes the DeltaTableMetricsCollectorBefore with Spark session,
         configuration file, and maximum number of threads.
@@ -179,3 +179,4 @@ if __name__ == "__main__":
     config_file_path = "../config/param.json"  
     collector = DeltaTableMetricsCollectorBefore(spark, config_file_path)
     collector.collect_metrics()
+    
