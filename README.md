@@ -68,6 +68,3 @@ To use this Databricks workflow system, follow these steps:
 - requirements.txt: List of Python dependencies.
 - Makefile: Contains convenient commands for installation, testing, and deployment.   
 
-
-
-**This project is dedicated to Dock**
