@@ -68,7 +68,7 @@ class DeltaTableMetricsCollectorAfter:
         for database_name in self.database_names:
             if self.database_exists(database_name):
                 try:
-                    tables_df = self.spark.sql(f"SHOW TABLES IN {database_name}")
+                    tables_df = self.spark.sql(f"select database as database_name , table as table_name from app_observability.vacuum_metrics where date(data_execution) = date(current_date()) and database = '{database_name}'")
                     all_tables.extend([(database_name, row.tableName) for row in tables_df.collect() if row.tableName not in self.skip_tables])
                 except Exception as e:
                     logging.error(f"Error retrieving tables from database {database_name}: {e}")
@@ -174,5 +174,5 @@ if __name__ == "__main__":
     spark = SparkSession.builder.appName("DeltaTableMetricsCollectorAfter").getOrCreate()
 
     config_file_path = "../config/param.json"  
-    collector = DeltaTableMetricsCollectorafter(spark, config_file_path)
+    collector = DeltaTableMetricsCollectorAfter(spark, config_file_path)
     collector.collect_metrics()
