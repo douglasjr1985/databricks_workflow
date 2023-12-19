@@ -22,12 +22,23 @@ class OptimizeJob:
         self.total_tables = 0
 
     def check_need_for_optimize(self, database_name, table_name, threshold=128 * 1024 * 1024):
-        delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
-        df_detail = delta_table.detail()
-        num_files = df_detail.select("numFiles").first()[0]
-        total_size = df_detail.select("sizeInBytes").first()[0]
-        average_file_size = total_size / num_files if num_files else 0
-        return average_file_size < threshold          
+        try:
+            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+            df_detail = delta_table.detail()
+            stats = df_detail.select("numFiles", "sizeInBytes").first()
+            num_files = stats["numFiles"]
+            total_size = stats["sizeInBytes"]
+
+            if num_files:
+                average_file_size = total_size / num_files
+                return average_file_size < threshold
+            else:
+                logging.info("No files found in the table.")
+                return False
+
+        except Exception as e:
+            logging.error(f"Error checking need for optimize in {table_name}: {e}")
+            return False   
 
     def optimize_table(self, database_name, table_name):
         """
