@@ -34,34 +34,18 @@ class DeltaTableMetricsCollectorBefore:
 
     def load_config(self):
         """
-        Loads the configuration data from a JSON file.
-
-        Returns:
-            dict: Configuration data.
+        Loads configuration data from a JSON file.
         """
+        if not os.path.exists(self.config_file):
+            logging.error(f"Config file not found: {self.config_file}")
+            return {}
+
         try:
             with open(self.config_file, 'r') as file:
                 return json.load(file)
         except Exception as e:
             logging.error(f"Failed to load config file: {e}")
             return {}
-
-    @staticmethod
-    def convert_size(size_bytes):
-        """
-        Converts a size in bytes to a human-readable format.
-
-        Args:
-            size_bytes (int): Size in bytes.
-
-        Returns:
-            str: Human-readable size format.
-        """
-        if size_bytes == 0:
-            return "0B"
-        size_name = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-        i = int(math.floor(math.log(size_bytes, 1024)))
-        return f"{round(size_bytes / math.pow(1024, i), 2)} {size_name[i]}"
 
     def database_exists(self, database_name):
         """
@@ -200,10 +184,3 @@ class DeltaTableMetricsCollectorBefore:
                         logging.error(f"Error collecting metrics for table {tbl} in database {db}: {e}")
         except Exception as e:
             logging.error(f"Error collecting metrics for tables: {e}")
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    spark = SparkSession.builder.appName("DeltaTableMetricsCollectorBefore").getOrCreate()
-    config_file_path = "../config/param.json"
-    collector = DeltaTableMetricsCollectorBefore(spark, config_file_path)
-    collector.collect_metrics()

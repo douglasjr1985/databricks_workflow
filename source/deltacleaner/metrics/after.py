@@ -19,17 +19,26 @@ class DeltaTableMetricsCollectorAfter:
         self.spark = spark_session
         self.max_threads = max_threads
 
-    def get_tables_in_databases(self):
+    def get_tables_info(self):
         """
         Returns a list of (database name, table name) pairs for all specified databases.
         """
-        all_tables = []
+        tables_info = []
         try:
-            tables_df = self.spark.sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) >= date(current_date() - 1)")
-            all_tables.extend([(row.database_name, row.table_name) for row in tables_df.collect()])
+            db_tables = (
+                        self.spark
+                            .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) >= date(current_date() - 1)")
+                            .rdd
+                            .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
+                            .collect()
+                        )
+            filtered_tables = [table for table in db_tables]
+
+            tables_info.extend(filtered_tables)
+
         except Exception as e:
             logging.error(f"Error retrieving tables: {e}")
-        return all_tables
+        return tables_info
 
     def get_table_properties(self, database_name, table_name):
         """
@@ -110,14 +119,8 @@ class DeltaTableMetricsCollectorAfter:
         Collects and saves metrics for all tables in all specified databases synchronously.
         """
         try:
-            tables = self.get_tables_in_databases()
+            tables = self.get_tables_info()
             for db, tbl in tables:
                 self.collect_metrics_for_table(db, tbl)
         except Exception as e:
             logging.error(f"Error collecting metrics for tables: {e}")
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    spark = SparkSession.builder.appName("DeltaTableMetricsCollectorAfter").getOrCreate()
-    collector = DeltaTableMetricsCollectorAfter(spark)
-    collector.collect_metrics()
