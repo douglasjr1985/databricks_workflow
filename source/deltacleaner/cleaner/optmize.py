@@ -18,7 +18,6 @@ class OptimizeJob:
         """
         self.spark = spark_session
         self.max_threads = max_threads
-        self.config_data = self.load_config()
         self.tables_processed = 0
         self.total_tables = 0
 
@@ -54,26 +53,25 @@ class OptimizeJob:
         """
         tables_info = []
 
-        for database_name in self.config_data['database_name']:
-            try:
-                db_tables = (
-                        self.spark
-                            .sql(f"select database as database_name , table as table_name from app_observability.vacuum_metrics where date(data_execution) = date(current_date())")
-                            .rdd
-                            .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
-                            .collect()
-                        )
-                filtered_tables = [table for table in db_tables]
+        try:
+            db_tables = (
+                self.spark
+                    .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) = date(current_date())")
+                    .rdd
+                    .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
+                    .collect()
+            )
+            tables_info.extend(db_tables)
+            self.total_tables = len(tables_info)
 
-                tables_info.extend(filtered_tables)
-                self.total_tables = len(tables_info)
+        except AnalysisException as ae:
+            logging.error(f"AnalysisException encountered: {ae}")
 
-            except AnalysisException as ae:
-                logging.error(f"Error accessing database {database_name}: {ae}")
-            except Exception as e:
-                logging.error(f"Unexpected error processing database {database_name}: {e}")
+        except Exception as e:
+            logging.error(f"General exception encountered: {e}")
 
         return tables_info
+
 
     def run_parallel_optimize(self):
         """
