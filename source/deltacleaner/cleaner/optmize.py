@@ -21,6 +21,14 @@ class OptimizeJob:
         self.tables_processed = 0
         self.total_tables = 0
 
+    def check_need_for_optimize(self, database_name, table_name, threshold=128 * 1024 * 1024):
+        delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+        df_detail = delta_table.detail()
+        num_files = df_detail.select("numFiles").first()[0]
+        total_size = df_detail.select("sizeInBytes").first()[0]
+        average_file_size = total_size / num_files if num_files else 0
+        return average_file_size < threshold          
+
     def optimize_table(self, database_name, table_name):
         """
         Perform an optimize operation on a specific Delta table.
@@ -29,11 +37,14 @@ class OptimizeJob:
         :param table_name: Name of the table to optimize.
         """
         try:
-            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
-            delta_table.optimize()
-            self.tables_processed += 1
-            logging.info(f"Optimize completed on {database_name}.{table_name} "
-                         f"({self.tables_processed} out of {self.total_tables} tables processed)")
+            if  self.check_need_for_optimize(database_name, table_name):
+                delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+                delta_table.optimize()
+                self.tables_processed += 1
+                logging.info(f"Optimize completed on {database_name}.{table_name} "
+                            f"({self.tables_processed} out of {self.total_tables} tables processed)")
+            else:
+                logging.info(f"No need for optimize on {database_name}.{table_name}")                
         except AnalysisException:
             logging.error(f"Table not found: {database_name}.{table_name}")
 
