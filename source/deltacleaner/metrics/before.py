@@ -64,6 +64,30 @@ class DeltaTableMetricsCollectorBefore:
             logging.warning(f"Database {database_name} does not exist.")
             return False
 
+    def check_need_for_optimize(self, database_name, table_name, threshold=128 * 1024 * 1024):
+        try:
+            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+            df_detail = delta_table.detail()
+            stats = df_detail.select("numFiles", "sizeInBytes").first()
+            num_files = stats["numFiles"]
+            total_size = stats["sizeInBytes"]
+
+            if num_files:
+                average_file_size = total_size / num_files
+                return average_file_size < threshold
+            else:
+                logging.info("No files found in the table.")
+                return False
+
+        except Exception as e:
+            logging.error(f"Error checking need for optimize in {table_name}: {e}")
+            return False   
+        
+    def check_need_for_vacuum(self, database_name, table_name, threshold=1000):
+        history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
+
+        return history_df.count() > threshold        
+
     def get_tables_modified_today(self):
         """
         Retrieves tables that were modified today in the specified databases.
@@ -80,7 +104,7 @@ class DeltaTableMetricsCollectorBefore:
                     tables_df = self.spark.sql(f"SHOW TABLES IN {database_name}")
                     for row in tables_df.collect():
                         table_name = row.tableName
-                        if table_name not in self.skip_tables:
+                        if self.check_need_for_optimize(database_name, table_name) or self.check_need_for_vacuum(database_name, table_name):
                             history_query = f"DESCRIBE HISTORY {database_name}.{table_name}"
                             history_df = self.spark.sql(history_query)
                             last_modified_row = history_df.orderBy(F.desc("timestamp")).first()
