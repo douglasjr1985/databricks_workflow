@@ -19,6 +19,13 @@ class DeltaTableMetricsCollectorAfter:
         """
         self.spark = spark_session
 
+    def after_wrapper(self, table_info):
+        """
+        Wrapper method to call after_wrapper.
+
+        :param table_info: Dictionary containing database and table name.
+        """
+        self.collect_metrics_for_table(table_info['database_name'], table_info['table_name'])         
 
     def get_tables_info(self):
         """
@@ -92,14 +99,7 @@ class DeltaTableMetricsCollectorAfter:
             self.update_table(df_detail_after)
         except Exception as e:
             logging.error(f"Error collecting metrics for table {table_name} in database {database_name}: {e}")
-
-    def after_wrapper(self, table_info):
-        """
-        Wrapper method to call optimize_table.
-
-        :param table_info: Dictionary containing database and table name.
-        """
-        self.collect_metrics_for_table(table_info['database_name'], table_info['table_name'])                    
+        
 
     def collect_metrics(self):
         """
