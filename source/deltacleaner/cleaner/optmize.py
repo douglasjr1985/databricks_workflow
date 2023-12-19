@@ -8,7 +8,7 @@ from pyspark.sql.utils import AnalysisException
 class OptimizeJob:
     """Class to handle optimize operations on Delta tables."""
 
-    def __init__(self, spark_session, config_file, max_threads=20):
+    def __init__(self, spark_session,max_threads=20):
         """
         Initialize the OptimizeJob instance.
 
@@ -17,16 +17,10 @@ class OptimizeJob:
         :param max_threads: Maximum number of threads for parallel execution.
         """
         self.spark = spark_session
-        self.config_file = config_file
         self.max_threads = max_threads
         self.config_data = self.load_config()
         self.tables_processed = 0
         self.total_tables = 0
-
-    def load_config(self):
-        """Load configuration data from a JSON file."""
-        with open(self.config_file, 'r') as file:
-            return json.load(file)
 
     def optimize_table(self, database_name, table_name):
         """
