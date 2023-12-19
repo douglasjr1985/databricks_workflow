@@ -23,16 +23,16 @@ class VacuumJob:
 
     def check_need_for_vacuum(self, database_name, table_name, threshold=200):
         """
-        Verifica se uma tabela específica requer operação de vacuum, com base em um limite definido.
+        Check whether a specific table requires vacuum operation, based on a defined threshold.
 
-        Args:
-            database_name (str): Nome do banco de dados.
-            table_name (str): Nome da tabela.
-            threshold (int): Limite para o número de operações de UPDATE, DELETE e MERGE.
+        Arguments:
+            database_name (str): Name of the database.
+            table_name (str): Name of the table.
+            limit (int): Limit for the number of UPDATE, DELETE and MERGE operations.
 
         Returns:
-            bool: Retorna True se o número de operações exceder o limiar, indicando necessidade de vacuum.
-        """       
+            bool: Returns True if the number of transactions exceeds the limit, reducing the need for a vacuum.
+        """
         try:
             history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
             return history_df.count() > threshold
