@@ -11,7 +11,7 @@
       "task_key": "MetricsBefore",
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/DeltaCleaner/metrics/before.py",
+        "python_file": "source/deltacleaner/RunJobBefore.py",
         "source": "GIT"
       },
       "job_cluster_key": "MetricsBefore_cluster",
@@ -33,7 +33,7 @@
       ],
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/DeltaCleaner/RunJobOptimize.py",
+        "python_file": "source/deltacleaner/RunJobOptimize.py",
         "source": "GIT"
       },
       "job_cluster_key": "RunJobOptimize_cluster",
@@ -55,7 +55,7 @@
       ],
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/DeltaCleaner/RunJobVacuum.py",
+        "python_file": "source/deltacleaner/RunJobVacuum.py",
         "source": "GIT"
       },
       "job_cluster_key": "DeltaCleaner_vacuum",
@@ -77,7 +77,7 @@
       ],
       "run_if": "ALL_SUCCESS",
       "spark_python_task": {
-        "python_file": "source/DeltaCleaner/metrics/after.py",
+        "python_file": "source/deltacleaner/RunJobAfter.py",
         "source": "GIT"
       },
       "job_cluster_key": "MetricsAfter_cluster",
