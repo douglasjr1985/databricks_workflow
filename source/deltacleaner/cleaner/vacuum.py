@@ -30,9 +30,8 @@ class VacuumJob:
 
     def check_need_for_vacuum(self, database_name, table_name, threshold=1000):
         history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
-        updates_and_deletes = history_df.filter("operation IN ('UPDATE', 'DELETE', 'MERGE')")
 
-        return updates_and_deletes.count() > threshold
+        return history_df.count() > threshold
 
     def vacuum_table(self, database_name, table_name, retention_hours=24*7):
         """
