@@ -27,7 +27,7 @@ class DeltaTableMetricsCollectorAfter:
         try:
             db_tables = (
                         self.spark
-                            .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) >= date(current_date() - 1)")
+                            .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) >= date(current_date())")
                             .rdd
                             .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
                             .collect()
@@ -39,24 +39,6 @@ class DeltaTableMetricsCollectorAfter:
         except Exception as e:
             logging.error(f"Error retrieving tables: {e}")
         return tables_info
-
-    def get_table_properties(self, database_name, table_name):
-        """
-        Returns the properties of a table.
-
-        :param database_name: The name of the database.
-        :param table_name: The name of the table.
-        :return: The type, location, and provider of the table.
-        """
-        try:
-            desc_query = f"DESC EXTENDED {database_name}.{table_name}"
-            result_df = self.spark.sql(desc_query)
-            filtered_df = result_df.filter(F.col("col_name").isin("Type", "Location", "Provider"))
-            properties = {row.col_name: row.data_type for row in filtered_df.collect()}
-            return properties.get('Type'), properties.get('Location'), properties.get('Provider')
-        except Exception as e:
-            logging.error(f"Error retrieving properties for table {table_name} in database {database_name}: {e}")
-            return None, None, None
 
     def table_detail_after(self, database_name, table_name):
         """
@@ -107,10 +89,8 @@ class DeltaTableMetricsCollectorAfter:
         :param table_name: The name of the table.
         """
         try:
-            table_type, table_location, table_provider = self.get_table_properties(database_name, table_name)
-            if table_type and table_location and table_provider:
-                df_detail_after = self.table_detail_after(database_name, table_name)
-                self.update_table(df_detail_after)
+            df_detail_after = self.table_detail_after(database_name, table_name)
+            self.update_table(df_detail_after)
         except Exception as e:
             logging.error(f"Error collecting metrics for table {table_name} in database {database_name}: {e}")
 
