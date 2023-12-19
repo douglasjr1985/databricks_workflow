@@ -8,7 +8,7 @@ from pyspark.sql.utils import AnalysisException
 class VacuumJob:
     """Class to handle vacuum operations on Delta tables."""
 
-    def __init__(self, spark_session, config_file, max_threads=20):
+    def __init__(self, spark_session, max_threads=20):
         """
         Initialize the VacuumJob instance.
 
@@ -17,21 +17,29 @@ class VacuumJob:
         :param max_threads: Maximum number of threads for parallel execution.
         """
         self.spark = spark_session
-        self.config_file = config_file
         self.max_threads = max_threads
-        self.config_data = self.load_config()
         self.tables_processed = 0
         self.total_tables = 0
 
-    def load_config(self):
-        """Load configuration data from a JSON file."""
-        with open(self.config_file, 'r') as file:
-            return json.load(file)
+    def check_need_for_vacuum(self, database_name, table_name, threshold=200):
+        """
+        Check whether a specific table requires vacuum operation, based on a defined threshold.
 
-    def check_need_for_vacuum(self, database_name, table_name, threshold=1000):
-        history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
+        Arguments:
+            database_name (str): Name of the database.
+            table_name (str): Name of the table.
+            limit (int): Limit for the number of UPDATE, DELETE and MERGE operations.
 
-        return history_df.count() > threshold
+        Returns:
+            bool: Returns True if the number of transactions exceeds the limit, reducing the need for a vacuum.
+        """
+        try:
+            history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
+            return history_df.count() > threshold
+        except Exception as e:
+            logging.error(f"Error when checking the need for vacuum in the table{table_name}: {e}")
+            return False
+
 
     def vacuum_table(self, database_name, table_name, retention_hours=24*7):
         """
@@ -45,7 +53,9 @@ class VacuumJob:
                 if self.check_need_for_vacuum(database_name, table_name):
                     delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
                     delta_table.vacuum(retention_hours)
-                    logging.info(f"Vacuum completed on {database_name}.{table_name}")
+                    self.tables_processed += 1
+                    logging.info(f"Vacuum completed on {database_name}.{table_name} "
+                                f"({self.tables_processed} out of {self.total_tables} tables processed)")
                 else:
                     logging.info(f"No need for vacuum on {database_name}.{table_name}")
         except AnalysisException:
@@ -67,24 +77,22 @@ class VacuumJob:
         """
         tables_info = []
 
-        for database_name in self.config_data['database_name']:
-            try:
-                db_tables = (
-                        self.spark
-                            .sql(f"select database as database_name , table as table_name from app_observability.vacuum_metrics where date(data_execution) = date(current_date())")
-                            .rdd
-                            .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
-                            .collect()
-                        )
-                filtered_tables = [table for table in db_tables]
+        try:
+            db_tables = (
+                self.spark
+                    .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) = date(current_date())")
+                    .rdd
+                    .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
+                    .collect()
+            )
+            tables_info.extend(db_tables)
+            self.total_tables = len(tables_info)
 
-                tables_info.extend(filtered_tables)
-                self.total_tables = len(tables_info)
+        except AnalysisException as ae:
+            logging.error(f"AnalysisException encountered: {ae}")
 
-            except AnalysisException as ae:
-                logging.error(f"Error accessing database {database_name}: {ae}")
-            except Exception as e:
-                logging.error(f"Unexpected error processing database {database_name}: {e}")
+        except Exception as e:
+            logging.error(f"General exception encountered: {e}")
 
         return tables_info
 
