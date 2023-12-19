@@ -53,7 +53,9 @@ class VacuumJob:
                 if self.check_need_for_vacuum(database_name, table_name):
                     delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
                     delta_table.vacuum(retention_hours)
-                    logging.info(f"Vacuum completed on {database_name}.{table_name}")
+                    self.tables_processed += 1
+                    logging.info(f"Vacuum completed on {database_name}.{table_name} "
+                                f"({self.tables_processed} out of {self.total_tables} tables processed)")
                 else:
                     logging.info(f"No need for vacuum on {database_name}.{table_name}")
         except AnalysisException:
