@@ -133,8 +133,8 @@ class DeltaTableMetricsCollectorBefore:
                 .withColumn('database', F.lit(database_name)) \
                 .withColumn('table', F.lit(table_name)) \
                 .withColumn('num_files_before', df_detail['numFiles'].cast(IntegerType())) \
-                .withColumn('total_size_before', df_detail['sizeInBytes'].cast(LongType())) \
-                .withColumn('processing', F.lit('historic'))
+                .withColumn('total_size_before', df_detail['sizeInBytes'].cast(LongType())) 
+
         except Exception as e:
             logging.error(f"Error preparing details for table {table_name} in database {database_name}: {e}")
             return None
