@@ -11,7 +11,7 @@ if __name__ == "__main__":
     # Initialize SparkSession for the DeltaTableMetricsCollectorBefore
     spark = SparkSession.builder.appName("DeltaTableMetricsCollectorBefore").getOrCreate()
     
-    config_file_path = "/config/param.json"
+    config_file_path = "config/param.json"
 
     # Create an instance of DeltaTableMetricsCollectorBefore and execute the metric collection
     collector = DeltaTableMetricsCollectorBefore(spark,config_file_path)
