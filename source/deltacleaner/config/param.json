@@ -4,7 +4,9 @@
      "cleaned_banking",
      "opt_dock_dbo_dl_prd",
      "opt_dock_dbo_dm_prd",
-     "raw_banking"
+     "raw_banking",
+     "dockone_silver",
+     "dockone_bronze"
   ],
   "skip_tables":[
      ""
