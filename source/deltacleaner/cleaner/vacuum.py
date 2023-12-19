@@ -21,7 +21,7 @@ class VacuumJob:
         self.tables_processed = 0
         self.total_tables = 0
 
-    def check_need_for_vacuum(self, database_name, table_name, threshold=1000):
+    def check_need_for_vacuum(self, database_name, table_name, threshold=200):
         """
         Verifica se uma tabela específica requer operação de vacuum, com base em um limite definido.
 
