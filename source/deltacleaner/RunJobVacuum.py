@@ -15,6 +15,6 @@ if __name__ == "__main__":
  
     # Initialize and run the VacuumJob
     # Assuming the same config file can be used for both optimize and vacuum jobs
-    vacuum_job = VacuumJob(spark, "config/param.json")
+    vacuum_job = VacuumJob(spark)
     # Execute the vacuum job
     vacuum_job.run_parallel_vacuum()
