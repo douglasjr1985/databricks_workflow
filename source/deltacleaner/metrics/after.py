@@ -19,6 +19,7 @@ class DeltaTableMetricsCollectorAfter:
         """
         self.spark = spark_session
 
+
     def get_tables_info(self):
         """
         Fetches the list of tables to process from the 'app_observability.vacuum_metrics' table.
@@ -26,11 +27,13 @@ class DeltaTableMetricsCollectorAfter:
         Returns:
             List[Dict[str, str]]: A list of dictionaries with database and table names.
         """
+        tables_info = []
         try:
             db_tables = self.spark.sql(
                 "SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) >= date(current_date())"
             ).rdd.map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']}).collect()
-            return [table for table in db_tables]
+            tables_info.extend(db_tables)
+            return tables_info
         except Exception as e:
             logging.error(f"Error retrieving tables: {e}")
             return []
@@ -90,13 +93,18 @@ class DeltaTableMetricsCollectorAfter:
         except Exception as e:
             logging.error(f"Error collecting metrics for table {table_name} in database {database_name}: {e}")
 
+    def after_wrapper(self, table_info):
+        """
+        Wrapper method to call optimize_table.
+
+        :param table_info: Dictionary containing database and table name.
+        """
+        self.collect_metrics_for_table(table_info['database_name'], table_info['table_name'])                    
+
     def collect_metrics(self):
         """
         Collects and saves metrics for all tables identified for processing.
         """
-        try:
-            tables = self.get_tables_info()
-            for db, tbl in tables:
-                self.collect_metrics_for_table(db, tbl)
-        except Exception as e:
-            logging.error("Error collecting metrics for tables: {e}")
+        tables = self.get_tables_info()
+        for table_info in tables:
+            self.after_wrapper(table_info)
