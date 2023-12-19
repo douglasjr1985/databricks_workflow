@@ -1,5 +1,3 @@
-import boto3
-import math
 import logging
 
 from pyspark.sql import SparkSession, functions as F
