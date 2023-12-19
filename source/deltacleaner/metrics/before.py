@@ -5,7 +5,6 @@ import os
 from datetime import datetime
 from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.utils import AnalysisException
-from urllib.parse import urlparse
 from delta.tables import DeltaTable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pyspark.sql.types import IntegerType, LongType
