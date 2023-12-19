@@ -28,6 +28,11 @@ class VacuumJob:
         with open(self.config_file, 'r') as file:
             return json.load(file)
 
+    def check_need_for_vacuum(self, database_name, table_name, threshold=1000):
+        history_df = self.spark.sql(f"DESCRIBE HISTORY `{database_name}`.`{table_name}`")
+
+        return history_df.count() > threshold
+
     def vacuum_table(self, database_name, table_name, retention_hours=24*7):
         """
         Perform a vacuum operation on a specific Delta table.
@@ -37,11 +42,12 @@ class VacuumJob:
         :param retention_hours: Data retention period in hours.
         """
         try:
-            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
-            delta_table.vacuum(retention_hours)
-            self.tables_processed += 1
-            logging.info(f"Vacuum completed on {database_name}.{table_name} "
-                         f"({self.tables_processed} out of {self.total_tables} tables processed)")
+                if self.check_need_for_vacuum(database_name, table_name):
+                    delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+                    delta_table.vacuum(retention_hours)
+                    logging.info(f"Vacuum completed on {database_name}.{table_name}")
+                else:
+                    logging.info(f"No need for vacuum on {database_name}.{table_name}")
         except AnalysisException:
             logging.error(f"Table not found: {database_name}.{table_name}")
 
