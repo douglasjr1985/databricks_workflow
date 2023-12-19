@@ -1,7 +1,6 @@
-import boto3
-import math
 import logging
 import json
+
 from datetime import datetime
 from pyspark.sql import SparkSession, functions as F
 from pyspark.sql.utils import AnalysisException
