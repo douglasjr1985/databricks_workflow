@@ -13,6 +13,6 @@ if __name__ == "__main__":
  
     # Initialize and run the OptimizeJob
     # Assuming the same config file can be used for both optimize and vacuum jobs 
-    optimize_job = OptimizeJob(spark, "config/param.json")
+    optimize_job = OptimizeJob(spark)
     # Execute the optimize job
     optimize_job.run_parallel_optimize()

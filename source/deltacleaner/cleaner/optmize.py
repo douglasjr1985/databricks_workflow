@@ -18,9 +18,27 @@ class OptimizeJob:
         """
         self.spark = spark_session
         self.max_threads = max_threads
-        self.config_data = self.load_config()
         self.tables_processed = 0
         self.total_tables = 0
+
+    def check_need_for_optimize(self, database_name, table_name, threshold=128 * 1024 * 1024):
+        try:
+            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+            df_detail = delta_table.detail()
+            stats = df_detail.select("numFiles", "sizeInBytes").first()
+            num_files = stats["numFiles"]
+            total_size = stats["sizeInBytes"]
+
+            if num_files:
+                average_file_size = total_size / num_files
+                return average_file_size < threshold
+            else:
+                logging.info("No files found in the table.")
+                return False
+
+        except Exception as e:
+            logging.error(f"Error checking need for optimize in {table_name}: {e}")
+            return False   
 
     def optimize_table(self, database_name, table_name):
         """
@@ -30,11 +48,14 @@ class OptimizeJob:
         :param table_name: Name of the table to optimize.
         """
         try:
-            delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
-            delta_table.optimize()
-            self.tables_processed += 1
-            logging.info(f"Optimize completed on {database_name}.{table_name} "
-                         f"({self.tables_processed} out of {self.total_tables} tables processed)")
+            if  self.check_need_for_optimize(database_name, table_name):
+                delta_table = DeltaTable.forName(self.spark, f"{database_name}.{table_name}")
+                delta_table.optimize()
+                self.tables_processed += 1
+                logging.info(f"Optimize completed on {database_name}.{table_name} "
+                            f"({self.tables_processed} out of {self.total_tables} tables processed)")
+            else:
+                logging.info(f"No need for optimize on {database_name}.{table_name}")                
         except AnalysisException:
             logging.error(f"Table not found: {database_name}.{table_name}")
 
@@ -54,26 +75,25 @@ class OptimizeJob:
         """
         tables_info = []
 
-        for database_name in self.config_data['database_name']:
-            try:
-                db_tables = (
-                        self.spark
-                            .sql(f"select database as database_name , table as table_name from app_observability.vacuum_metrics where date(data_execution) = date(current_date())")
-                            .rdd
-                            .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
-                            .collect()
-                        )
-                filtered_tables = [table for table in db_tables]
+        try:
+            db_tables = (
+                self.spark
+                    .sql("SELECT database AS database_name, table AS table_name FROM app_observability.vacuum_metrics WHERE date(data_execution) = date(current_date())")
+                    .rdd
+                    .map(lambda row: {'database_name': row['database_name'], 'table_name': row['table_name']})
+                    .collect()
+            )
+            tables_info.extend(db_tables)
+            self.total_tables = len(tables_info)
 
-                tables_info.extend(filtered_tables)
-                self.total_tables = len(tables_info)
+        except AnalysisException as ae:
+            logging.error(f"AnalysisException encountered: {ae}")
 
-            except AnalysisException as ae:
-                logging.error(f"Error accessing database {database_name}: {ae}")
-            except Exception as e:
-                logging.error(f"Unexpected error processing database {database_name}: {e}")
+        except Exception as e:
+            logging.error(f"General exception encountered: {e}")
 
         return tables_info
+
 
     def run_parallel_optimize(self):
         """
