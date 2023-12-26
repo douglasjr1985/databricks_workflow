@@ -34,7 +34,7 @@ class OptimizeJob:
             else:
                 logging.info("No files found in the table.")
                 return False
-
+            
         except Exception as e:
             logging.error(f"Error checking need for optimize in {table_name}: {e}")
             return False   
