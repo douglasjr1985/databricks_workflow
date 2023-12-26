@@ -1,7 +1,6 @@
-
-from pyspark.sql import SparkSession
 from cleaner.optmize import OptimizeJob
 from configure_logging import LoggingConfigurator
+from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
     # Configure logging

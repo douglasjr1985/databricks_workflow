@@ -1,7 +1,6 @@
-
-from pyspark.sql import SparkSession
-from metrics.before import DeltaTableMetricsCollectorBefore
 from configure_logging import LoggingConfigurator
+from metrics.before import DeltaTableMetricsCollectorBefore
+from pyspark.sql import SparkSession
 
 if __name__ == "__main__":
     # Configure logging settings
